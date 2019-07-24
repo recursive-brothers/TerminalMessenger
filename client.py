@@ -2,6 +2,8 @@
 
 import socket
 
+#this came from https://realpython.com/python-sockets
+
 HOST = '172.20.10.3'  # The server's hostname or IP address
 PORT = 3333        # The port used by the server
 

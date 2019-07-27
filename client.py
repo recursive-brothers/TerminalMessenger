@@ -11,27 +11,34 @@ args = parser.parse_args()
 
 # This code is based on the simple client from https://realpython.com/python-sockets
 
-HOST = '172.20.10.4'  # The server's hostname or IP address
+HOST = 'localhost'  # The server's hostname or IP address
 PORT = int(args.port) # The port used by the server
 
 
 async def async_input(server_socket):
     while True:
-        message = await ainput("> ")
+        message = await ainput("-> ")
         server_socket.sendall(message.encode())
+        await asyncio.sleep(1)
 
 async def get_messages(server_socket):
     while True:
-        received_message = server_socket.recv(1024)
+        received_message = None
+        try:
+            received_message = server_socket.recv(1024)
+        except:
+            pass
         if received_message:
             print(received_message)
-        asyncio.sleep(1)    
+        await asyncio.sleep(1)
+          
 
 async def main(s):
     get_input = asyncio.create_task(async_input(s))
     get_output = asyncio.create_task(get_messages(s))
-    await get_input
     await get_output
+    await get_input
+    
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.connect((HOST, PORT))

@@ -3,12 +3,17 @@
 import selectors
 import socket
 import types
+import argparse
 
+
+parser = argparse.ArgumentParser()
+parser.add_argument('port')
+args = parser.parse_args()
 
 # goal: get a server that connect with multiple clients and get it to send messages from one client to the others
 sockets_container = selectors.DefaultSelector()
 host = '0.0.0.0'
-port = 3335
+port = int(args.port)
 
 
 lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

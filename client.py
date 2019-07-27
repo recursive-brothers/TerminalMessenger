@@ -11,7 +11,7 @@ args = parser.parse_args()
 
 # This code is based on the simple client from https://realpython.com/python-sockets
 
-HOST = 'localhost'  # The server's hostname or IP address
+HOST = '0.0.0.0'  # The server's hostname or IP address
 PORT = int(args.port) # The port used by the server
 
 

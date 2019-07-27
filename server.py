@@ -50,7 +50,7 @@ while True:
 	for socket_obj, events in ready_sockets:
 		if socket_obj.data is None:
 			client_socket, addr = socket_obj.fileobj.accept() 
-			print('accept09u8ham', addr) 
+			print('accepted client', addr) 
 			client_socket.setblocking(False)
 			sockets_container.register(client_socket, selectors.EVENT_READ | selectors.EVENT_WRITE, data = "Client socket")
 			list_of_sockets.append(client_socket)

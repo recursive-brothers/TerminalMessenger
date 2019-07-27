@@ -18,13 +18,14 @@ PORT = int(args.port) # The port used by the server
 async def async_input(server_socket):
     while True:
         message = await ainput("> ")
-        server_socket.sendall(message)
+        server_socket.sendall(message.encode())
 
 async def get_messages(server_socket):
     while True:
         received_message = server_socket.recv(1024)
         if received_message:
             print(received_message)
+        asyncio.sleep(1)    
 
 async def main(s):
     get_input = asyncio.create_task(async_input(s))

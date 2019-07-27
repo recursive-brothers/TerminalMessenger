@@ -25,34 +25,40 @@ sockets_container.register(lsock, selectors.EVENT_READ, data=None)
 
 list_of_sockets = []
 
-try:
-	while True:
-		ready_sockets = sockets_container.select()
-		for socket_obj, events in ready_sockets:
-			if socket_obj.data is None:
-				client_socket, addr = socket_obj.fileobj.accept()  
-				client_socket.setblocking(False)
-				sockets_container.register(client_socket, selectors.EVENT_READ | selectors.EVENT_WRITE)
-				list_of_sockets.append(client_socket)
-			else:
-				handle_client(socket_obj.fileobj, events)
 
-except Exception as e:
-	print(e) 
-	for socket in list_of_sockets:
-		socket.close()
-	lsock.close()
+
+
+
+def handle_client(client_socket, events):
+	recv_data = None 
+	if events & selectors.EVENT_READ:
+		recv_data = client_socket.recv(1024)
+		print("data just received")
+		print("client sent -> ", recv_data)
+		print(events & selectors.EVENT_WRITE)
+
+	
+	if recv_data:
+		for socket in list_of_sockets:
+			if socket != client_socket:
+				print("sending to other clients")
+				socket.send(recv_data)
+
+while True:
+	ready_sockets = sockets_container.select()
+	for socket_obj, events in ready_sockets:
+		if socket_obj.data is None:
+			client_socket, addr = socket_obj.fileobj.accept() 
+			print('accepted connection from', addr) 
+			client_socket.setblocking(False)
+			sockets_container.register(client_socket, selectors.EVENT_READ | selectors.EVENT_WRITE, data = "Client socket")
+			list_of_sockets.append(client_socket)
+		else:
+			handle_client(socket_obj.fileobj, events)
+
+
 	
 
-
-def handle_client(socket_file, events):
-	if events & select.EVENT_READ:
-		recv_data = socket_file.recv(1024)
-
-	if events & select.EVENT_WRITE:
-		for socket in list_of_sockets:
-			if socket != socket_file:
-				socket.send(recv_data)
 
 
 

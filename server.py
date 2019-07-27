@@ -49,7 +49,7 @@ while True:
 	for socket_obj, events in ready_sockets:
 		if socket_obj.data is None:
 			client_socket, addr = socket_obj.fileobj.accept() 
-			print('accepted connection from', addr) 
+			print('accept09u8ham', addr) 
 			client_socket.setblocking(False)
 			sockets_container.register(client_socket, selectors.EVENT_READ | selectors.EVENT_WRITE, data = "Client socket")
 			list_of_sockets.append(client_socket)
@@ -66,4 +66,10 @@ while True:
 """
 1. send it to everybody except yourself
 2. route to a specific IP address specified on the command line with an option
+
+
+
+Current Problems:
+
+1. when client terminates, server gets spammed with b''. Need to implement graceful termination.  
 """

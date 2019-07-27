@@ -25,7 +25,6 @@ async def get_messages(server_socket):
         received_message = server_socket.recv(1024)
         if received_message:
             print(received_message)
-        asyncio.sleep(1)    
 
 async def main(s):
     get_input = asyncio.create_task(async_input(s))

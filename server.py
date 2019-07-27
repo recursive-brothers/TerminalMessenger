@@ -43,6 +43,7 @@ def handle_client(client_socket, events):
 			if socket != client_socket:
 				print("sending to other clients")
 				socket.send(recv_data)
+	
 
 while True:
 	ready_sockets = sockets_container.select()
@@ -66,4 +67,10 @@ while True:
 """
 1. send it to everybody except yourself
 2. route to a specific IP address specified on the command line with an option
+
+
+
+Current Problems:
+
+1. when client terminates, server gets spammed with b''. Need to implement graceful termination.  
 """

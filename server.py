@@ -30,7 +30,7 @@ def handle_client(client_socket, events):
 	recv_data = None 
 	socket_obj = client_socket.fileobj
 	if events & selectors.EVENT_READ:
-		recv_data = socket_obj.recv(1024).decode()
+		recv_data = socket_obj.recv(1024)
 		if not recv_data:
 			print('closing connection', client_socket.data)
 			sockets_container.unregister(socket_obj)

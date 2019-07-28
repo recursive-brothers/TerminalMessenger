@@ -9,14 +9,12 @@ parser = argparse.ArgumentParser()
 parser.add_argument('port')
 args = parser.parse_args()
 
-# This code is based on the simple client from https://realpython.com/python-sockets
-
 
 HOST = '18.222.230.158'  # The server's hostname or IP address
 PORT = int(args.port) # The port used by the server
 
 
-async def async_input(server_socket):
+async def get_user_input(server_socket):
     while True:
         message = await ainput("> ")
         server_socket.sendall(message.encode())
@@ -33,10 +31,8 @@ async def get_messages(server_socket):
             print(received_message)
         await asyncio.sleep(.1)
           
-
-
 async def main(s):
-    get_input = asyncio.ensure_future(async_input(s))
+    get_input = asyncio.ensure_future(get_user_input(s))
     get_output = asyncio.ensure_future(get_messages(s))
     await get_output
     await get_input
@@ -47,13 +43,4 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.setblocking(False)
     loop = asyncio.get_event_loop()
     loop.run_until_complete(main(s))
-    # asyncio.run(main(s))
-
-
-
-
-
-
-"""
-1. don't send messages that are entirely whitespace
-"""
+    

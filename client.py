@@ -36,8 +36,8 @@ async def get_messages(server_socket):
 
 
 async def main(s):
-    get_input = asyncio.create_task(async_input(s))
-    get_output = asyncio.create_task(get_messages(s))
+    get_input = asyncio.ensure_future(async_input(s))
+    get_output = asyncio.ensure_future(get_messages(s))
     await get_output
     await get_input
     
@@ -45,7 +45,9 @@ async def main(s):
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.connect((HOST, PORT))
     s.setblocking(False)
-    asyncio.run(main(s))
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main(s))
+    # asyncio.run(main(s))
 
 
 

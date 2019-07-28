@@ -40,7 +40,6 @@ def handle_client(client_socket, events):
 		print("client sent -> ", recv_data)
 	
 	if recv_data:
-		recv_data = '\n' + recv_data + '\n>'
 		for socket in list_of_sockets:
 			if socket != socket_obj:
 				print("sending to other clients")

@@ -4,6 +4,7 @@ import selectors
 import socket
 import types
 import argparse
+import datetime
 
 parser = argparse.ArgumentParser()
 parser.add_argument('port')
@@ -45,17 +46,29 @@ def handle_client(client_socket, events):
 				print("sending to other clients")
 				socket.send(recv_data)
 
-while True:
-	ready_sockets = sockets_container.select()
-	for socket_obj, events in ready_sockets:
-		if socket_obj.data is None:
-			client_socket, addr = socket_obj.fileobj.accept() 
-			print('accepted client', addr) 
-			client_socket.setblocking(False)
-			sockets_container.register(client_socket, selectors.EVENT_READ | selectors.EVENT_WRITE, data = addr)
-			list_of_sockets.append(client_socket)
-		else:
-			handle_client(socket_obj, events)
+def main():
+	while True:
+		ready_sockets = sockets_container.select()
+		for socket_obj, events in ready_sockets:
+			if socket_obj.data is None:
+				client_socket, addr = socket_obj.fileobj.accept() 
+				print('accepted client', addr) 
+				client_socket.setblocking(False)
+				sockets_container.register(client_socket, selectors.EVENT_READ | selectors.EVENT_WRITE, data = addr)
+				list_of_sockets.append(client_socket)
+			else:
+				handle_client(socket_obj, events)
+
+
+print(f'----------------------STARTING SESSION {datetime.datetime.now()}----------------------')
+try:
+	main()
+except Exception as e:
+	print(e)
+
+print(f'----------------------ENDING SESSION {datetime.datetime.now()}----------------------')
+
+
 
 
 """

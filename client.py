@@ -28,7 +28,7 @@ async def get_messages(server_socket):
         except:
             pass
         if received_message:
-            print('\n' + received_message + '\n>')
+            print('\n' + received_message + '\n>', end='')
         await asyncio.sleep(.1)
           
 async def main(s):

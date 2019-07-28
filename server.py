@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3
+#!/usr/bin/python3
 
 import selectors
 import socket
@@ -31,18 +31,25 @@ list_of_sockets = []
 
 def handle_client(client_socket, events):
 	recv_data = None 
+	socket_obj = client_socket.fileobj
 	if events & selectors.EVENT_READ:
-		recv_data = client_socket.recv(1024)
+		recv_data = socket_obj.recv(1024)
+		if not recv_data:
+			print('closing connection', client_socket.data)
+			sockets_container.unregister(socket_obj)
+			socket_obj.close()
+			list_of_sockets.remove(socket_obj)
+			return
+
 		print("data just received")
 		print("client sent -> ", recv_data)
-		print(events & selectors.EVENT_WRITE)
-
 	
 	if recv_data:
 		for socket in list_of_sockets:
-			if socket != client_socket:
+			if socket != socket_obj:
 				print("sending to other clients")
 				socket.send(recv_data)
+
 	
 
 while True:
@@ -52,10 +59,10 @@ while True:
 			client_socket, addr = socket_obj.fileobj.accept() 
 			print('accepted client', addr) 
 			client_socket.setblocking(False)
-			sockets_container.register(client_socket, selectors.EVENT_READ | selectors.EVENT_WRITE, data = "Client socket")
+			sockets_container.register(client_socket, selectors.EVENT_READ | selectors.EVENT_WRITE, data = addr)
 			list_of_sockets.append(client_socket)
 		else:
-			handle_client(socket_obj.fileobj, events)
+			handle_client(socket_obj, events)
 
 
 	
@@ -67,10 +74,4 @@ while True:
 """
 1. send it to everybody except yourself
 2. route to a specific IP address specified on the command line with an option
-
-
-
-Current Problems:
-
-1. when client terminates, server gets spammed with b''. Need to implement graceful termination.  
 """

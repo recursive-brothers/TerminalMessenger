@@ -24,7 +24,7 @@ async def get_messages(server_socket):
     while True:
         received_message = None
         try:
-            received_message = server_socket.recv(1024)
+            received_message = server_socket.recv(1024).decode()
         except:
             pass
         if received_message:

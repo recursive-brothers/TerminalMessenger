@@ -5,7 +5,6 @@ import socket
 import types
 import argparse
 
-
 parser = argparse.ArgumentParser()
 parser.add_argument('port')
 args = parser.parse_args()
@@ -25,15 +24,11 @@ sockets_container.register(lsock, selectors.EVENT_READ, data=None)
 
 list_of_sockets = []
 
-
-
-
-
 def handle_client(client_socket, events):
 	recv_data = None 
 	socket_obj = client_socket.fileobj
 	if events & selectors.EVENT_READ:
-		recv_data = socket_obj.recv(1024)
+		recv_data = socket_obj.recv(1024).decode()
 		if not recv_data:
 			print('closing connection', client_socket.data)
 			sockets_container.unregister(socket_obj)
@@ -45,12 +40,11 @@ def handle_client(client_socket, events):
 		print("client sent -> ", recv_data)
 	
 	if recv_data:
+		recv_data = '\n' + recv_data + '\n>'
 		for socket in list_of_sockets:
 			if socket != socket_obj:
 				print("sending to other clients")
 				socket.send(recv_data)
-
-	
 
 while True:
 	ready_sockets = sockets_container.select()
@@ -65,13 +59,13 @@ while True:
 			handle_client(socket_obj, events)
 
 
-	
-
-
-
-
-
 """
 1. send it to everybody except yourself
 2. route to a specific IP address specified on the command line with an option
+"""
+
+
+"""
+Problem: we are just printing a lt sign and then any text interaction follows from that
+Solution: pre- and post-pend every message with a new line, and then additionally append with a caret
 """

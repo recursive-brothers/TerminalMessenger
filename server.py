@@ -5,6 +5,7 @@ import socket
 import types
 import argparse
 import datetime
+import traceback
 
 parser = argparse.ArgumentParser()
 parser.add_argument('port')
@@ -64,9 +65,9 @@ print(f'----------------------STARTING SESSION {datetime.datetime.now()}--------
 try:
 	main()
 except Exception as e:
-	print(e)
+	traceback.print_exc()
 
-print(f'----------------------ENDING SESSION {datetime.datetime.now()}----------------------')
+print(f'----------------------ENDING SESSION {datetime.datetime.now()}------------------------')
 
 
 

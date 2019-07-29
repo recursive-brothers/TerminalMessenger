@@ -45,7 +45,7 @@ def handle_client(client_socket, events):
 			return
 
 		logging.debug("data just received")
-		logging.debug("client sent -> ", recv_data)
+		logging.debug("client sent -> " + recv_data.decode())
 	
 	if recv_data:
 		for socket in list_of_sockets:

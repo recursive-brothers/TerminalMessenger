@@ -40,7 +40,7 @@ def handle_client(client_socket, events):
 	if events & selectors.EVENT_READ:
 		recv_data = socket_obj.recv(1024)
 		if not recv_data:
-			logging.debug('closing connection ' + client_socket.data + f' {str(datetime.datetime.now())}')
+			logging.debug('closing connection ' + str(client_socket.data) + f' {str(datetime.datetime.now())}')
 			sockets_container.unregister(socket_obj)
 			socket_obj.close()
 			list_of_sockets.remove(socket_obj)

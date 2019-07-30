@@ -60,7 +60,7 @@ def main():
 		for socket_obj, events in ready_sockets:
 			if socket_obj.data is None:
 				client_socket, addr = socket_obj.fileobj.accept() 
-				logging.debug('accepted client' + addr + f' {str(datetime.datetime.now())}') 
+				logging.debug('accepted client' + str(addr) + f' {str(datetime.datetime.now())}') 
 				client_socket.setblocking(False)
 				sockets_container.register(client_socket, selectors.EVENT_READ | selectors.EVENT_WRITE, data = addr)
 				list_of_sockets.append(client_socket)

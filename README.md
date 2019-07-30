@@ -22,3 +22,6 @@ bonus features:
 - adding useful text commands (/join to join a chatroom, /l to list public chatrooms)
 - pretty colors :)
 - analysis of your message history
+- admin privileges to starters of group messages/chatrooms, etc.
+- image rendering 
+- security (blocking ips,etc)

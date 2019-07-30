@@ -4,6 +4,8 @@ Chat server and client written with Python using sockets library :)
 
 roadmap:
 
+TODO: 
+
 core features:
 - message one on one with another client
 - group messaging

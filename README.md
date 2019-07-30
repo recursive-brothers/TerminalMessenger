@@ -20,3 +20,5 @@ bonus features:
 - packaging it with pypy
 - dockerize it 
 - adding useful text commands (/join to join a chatroom, /l to list public chatrooms)
+- pretty colors :)
+- analysis of your message history

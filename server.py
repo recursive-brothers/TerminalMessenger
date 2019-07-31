@@ -67,7 +67,7 @@ def handle_client(socket_wrapper, events):
 	if events & selectors.EVENT_READ:
 		try:
 			recv_data = client_socket.recv(1024)
-		except:
+		except ConnectionResetError:
 			recv_data = None
 			log_debug_info("OSERROR OCCURRED: BEGIN LOGGING")
 			log_debug_info('address is', socket_wrapper.data)

@@ -49,10 +49,9 @@ def accept_new_client(master_socket):
 	list_of_sockets.append(client_socket)
 	log_debug_info('accepted client', addr)
 
-def close_client_connection(socket_wrapper):
-	client_socket = socket_wrapper.fileobj
-	log_debug_info('closing connection', socket_wrapper.data)
-	client_manager.unregister(socket_wrapper)
+def close_client_connection(client_socket, address):
+	log_debug_info('closing connection', address)
+	client_manager.unregister(client_socket)
 	client_socket.close()
 	list_of_sockets.remove(client_socket)
 
@@ -70,7 +69,7 @@ def handle_client(socket_wrapper, events):
 		if recv_data:
 			send_to_others(recv_data, client_socket)
 		else:
-			close_client_connection(socket_wrapper)
+			close_client_connection(client_socket, socket_wrapper.data)
 
 def event_loop():
 	while True:

@@ -57,7 +57,6 @@ def close_client_connection(client_socket, address):
 
 def send_to_others(recv_data, source_client):
 	log_debug_info('client sent ->', recv_data.decode())
-	log_debug_info('client socket count is', len(list_of_sockets))
 	for socket in list_of_sockets:
 		if socket != source_client:
 			socket.send(recv_data)
@@ -66,7 +65,15 @@ def handle_client(socket_wrapper, events):
 	recv_data = None 
 	client_socket = socket_wrapper.fileobj
 	if events & selectors.EVENT_READ:
-		recv_data = client_socket.recv(1024)
+		try:
+			recv_data = client_socket.recv(1024)
+		except:
+			recv_data = None
+			log_debug_info("OSERROR OCCURRED: BEGIN LOGGING")
+			log_debug_info('address is', socket_wrapper.data)
+			log_debug_info('count of clients', len(list_of_sockets))
+			log_debug_info(traceback.format_exc())
+			log_debug_info("OSERROR OCCURRED: ENDING LOGGING")
 		if recv_data:
 			send_to_others(recv_data, client_socket)
 		else:

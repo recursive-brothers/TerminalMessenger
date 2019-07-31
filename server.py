@@ -57,6 +57,7 @@ def close_client_connection(client_socket, address):
 
 def send_to_others(recv_data, source_client):
 	log_debug_info('client sent ->', recv_data.decode())
+	log_debug_info('client socket count is', len(list_of_sockets))
 	for socket in list_of_sockets:
 		if socket != source_client:
 			socket.send(recv_data)

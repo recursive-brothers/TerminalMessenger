@@ -9,69 +9,84 @@ import traceback
 import logging
 import datetime
 
+HOST = '0.0.0.0'
+
+parser = argparse.ArgumentParser()
+parser.add_argument('port')
+args = parser.parse_args()
 
 logging.basicConfig(filename='server.log',
                             filemode='a',
                             datefmt='%H:%M:%S',
                             level=logging.DEBUG)
 
-parser = argparse.ArgumentParser()
-parser.add_argument('port')
-args = parser.parse_args()
-
-# goal: get a server that connect with multiple clients and get it to send messages from one client to the others
-sockets_container = selectors.DefaultSelector()
-host = '0.0.0.0'
-port = int(args.port)
-
-
-lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-lsock.bind((host, port))
-lsock.listen()
-logging.debug('listening on' + str((host, port)) + f' {str(datetime.datetime.now())}')
-lsock.setblocking(False)
-sockets_container.register(lsock, selectors.EVENT_READ, data=None)
-
 list_of_sockets = []
+client_manager = selectors.DefaultSelector()
 
-def handle_client(client_socket, events):
+
+def log_debug_info(*args):
+	str_args = [str(arg) for arg in args]
+	str_args.append(str(datetime.datetime.now()))
+	logging.debug(' '.join(str_args))
+
+def initialize_listening_socket(port):
+	lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	lsock.bind((HOST, port))
+	lsock.listen()
+	lsock.setblocking(False)
+	client_manager.register(lsock, selectors.EVENT_READ, data=None)
+
+def setup():
+	port = int(args.port)
+	initialize_listening_socket(port)
+	log_debug_info('listening on', (HOST, port))
+
+# NEED TO RENAME MASTER SOCKET
+def accept_new_client(master_socket):
+	client_socket, addr = master_socket.accept()
+	client_socket.setblocking(False)
+	client_manager.register(client_socket, selectors.EVENT_READ | selectors.EVENT_WRITE, data = addr)
+	list_of_sockets.append(client_socket)
+	log_debug_info('accepted client', addr)
+
+def close_client_connection(socket_wrapper):
+	client_socket = socket_wrapper.fileobj
+	log_debug_info('closing connection', socket_wrapper.data)
+	client_manager.unregister(socket_wrapper)
+	client_socket.close()
+	list_of_sockets.remove(client_socket)
+
+def send_to_others(recv_data, source_client):
+	log_debug_info('client sent ->', recv_data.decode())
+	for socket in list_of_sockets:
+		if socket != source_client:
+			socket.send(recv_data)
+
+def handle_client(socket_wrapper, events):
 	recv_data = None 
-	socket_obj = client_socket.fileobj
+	client_socket = socket_wrapper.fileobj
 	if events & selectors.EVENT_READ:
-		recv_data = socket_obj.recv(1024)
-		if not recv_data:
-			logging.debug('closing connection ' + str(client_socket.data) + f' {str(datetime.datetime.now())}')
-			sockets_container.unregister(socket_obj)
-			socket_obj.close()
-			list_of_sockets.remove(socket_obj)
-			return
+		recv_data = client_socket.recv(1024)
+		if recv_data:
+			send_to_others(recv_data, client_socket)
+		else:
+			close_client_connection(socket_wrapper)
 
-		logging.debug("client sent -> " + recv_data.decode() + f' {str(datetime.datetime.now())}')
-	
-	if recv_data:
-		for socket in list_of_sockets:
-			if socket != socket_obj:
-				logging.debug(f'sending to other clients {str(datetime.datetime.now())}')
-				socket.send(recv_data)
-
-def main():
+def event_loop():
 	while True:
-		ready_sockets = sockets_container.select()
-		for socket_obj, events in ready_sockets:
-			if socket_obj.data is None:
-				client_socket, addr = socket_obj.fileobj.accept() 
-				logging.debug('accepted client' + str(addr) + f' {str(datetime.datetime.now())}') 
-				client_socket.setblocking(False)
-				sockets_container.register(client_socket, selectors.EVENT_READ | selectors.EVENT_WRITE, data = addr)
-				list_of_sockets.append(client_socket)
+		ready_sockets = client_manager.select()
+		for socket_wrapper, events in ready_sockets:
+			if socket_wrapper.data is None:
+				accept_new_client(socket_wrapper.fileobj)
 			else:
-				handle_client(socket_obj, events)
+				handle_client(socket_wrapper, events)
 
 
-logging.debug(f'----------------------STARTING SESSION {str(datetime.datetime.now())}----------------------')
+log_debug_info('----------------------STARTING SESSION----------------------')
 try:
-	main()
+	setup()
+	event_loop()
 except Exception as e:
-	logging.debug(traceback.format_exc())
+	log_debug_info(traceback.format_exc())
 
-logging.debug(f'----------------------ENDING SESSION {str(datetime.datetime.now())}-------------------------')
+log_debug_info('----------------------ENDING SESSION-------------------------')

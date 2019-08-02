@@ -29,4 +29,4 @@ bonus features:
 - image rendering 
 - security (blocking ips,etc)
 - text search for previous messages
-emojis
+- emojis

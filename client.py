@@ -55,61 +55,117 @@ async def background_tasks(s):
     
 
 
+
+def draw_input_window(rows,cols,startY,startX):
+    input_window = curses.newwin(rows,cols,startY,startX)
+    input_window.border('|', '|', '-', '-', '+', '+', '+', '+')
+    input_window.refresh()
+    return input_window
+    
+    
+
+
+def draw_received_window(rows,cols,startY,startX):
+    received_window = curses.newwin(rows,cols,startY,startX)
+    received_window.border('|', '|', '-', '-', '+', '+', '+', '+')
+    received_window.refresh()
+    return received_window
+
+class CursorPosition:
+    def __init__(self,startY,startX):
+        self.y = startY
+        self.x = startX
+        
+def send_message(input_window, received_window, input_window_cursor, received_window_cursor, num_cols, built_str):
+    input_window.erase()
+    input_window.border('|', '|', '-', '-', '+', '+', '+', '+')
+    input_window.refresh()
+
+    
+    received_window.addstr(received_window_cursor.y, 1, "".join(built_str))
+    received_window_cursor.y += int(1 + (len(built_str) / num_cols))
+    received_window.refresh()
+    input_window_cursor.x = input_window_cursor.y = 1
+    built_str.clear()
+
+def backspace(input_window, input_window_cursor, built_str, num_cols):
+    if len(built_str) <= 0:
+        return
+    input_window.addstr(input_window_cursor.y, input_window_cursor.x - 1, "  ")
+    input_window.refresh()
+    built_str.pop()
+    input_window_cursor.x -= 1
+
+    if input_window_cursor.x == 0:
+        if input_window_cursor.y != 1:
+            input_window_cursor.y -= 1
+            input_window_cursor.x = num_cols - 2
+        else:
+            input_window_cursor.x = 1
+
+def build_message(input_window, input_window_cursor, built_str, num_cols, ch):
+    built_str.append(chr(ch))
+    input_window.addstr(input_window_cursor.y,input_window_cursor.x,chr(ch))
+    input_window_cursor.x += 1 
+
+    if input_window_cursor.x == num_cols - 1:
+        input_window_cursor.y += 1
+        input_window_cursor.x = 1
+
+
+
+def input_loop(input_window,received_window,num_cols):
+    built_str = []
+    input_window_cursor = CursorPosition(1,1)
+    received_window_cursor = CursorPosition(1,1)
+
+
+    while True:
+        ch = input_window.getch(input_window_cursor.y, input_window_cursor.x)
+
+        if ch != curses.ERR:
+            if ch == ord('\n'):
+                send_message(input_window, received_window, input_window_cursor, received_window_cursor, num_cols, built_str)
+            elif ch == 127:
+                backspace(input_window, input_window_cursor, built_str, num_cols)
+            else:
+                build_message(input_window, input_window_cursor, built_str, num_cols, ch)
+
 def main(stdscr):
     # curses.echo()
     num_rows, num_cols = stdscr.getmaxyx()
     
-
     received_messages_rows = int(.85 * num_rows)
     sending_message_rows = num_rows - received_messages_rows
 
-    received_window = curses.newwin(received_messages_rows,num_cols,0,0)
-    received_window.border('|', '|', '-', '-', '+', '+', '+', '+')
-    received_window.refresh()
-
-    input_window = curses.newwin(sending_message_rows,num_cols,received_messages_rows,0)
-    input_window.border('|', '|', '-', '-', '+', '+', '+', '+')
-    input_window.refresh()
+    received_window = draw_received_window(received_messages_rows,num_cols,0,0)
+    input_window = draw_input_window(sending_message_rows,num_cols,received_messages_rows,0)
 
     input_window.nodelay(True)
     received_window.nodelay(True)
-    
-    built_str = ''
-    y_position = 1
-    x_position = 1
-    while True:
 
-        ch = input_window.getch(y_position,x_position)
+    input_loop(input_window,received_window,num_cols)
 
-        if ch != curses.ERR:
-            if ch == ord('\n'):
-                input_window.erase()
-                input_window.border('|', '|', '-', '-', '+', '+', '+', '+')
-                input_window.refresh()
-                received_window.addstr(1,1,built_str)
-                received_window.refresh()
-                x_position = y_position = 1
-                built_str = ''
-
-            elif ch == 127:
-                input_window.addstr(y_position,x_position - 1,"  ")
-                input_window.refresh()
-                x_position -= 1
-            
-            else:
-                built_str += chr(ch)
-                input_window.addstr(y_position,x_position,chr(ch))
-                x_position += 1 
-
-        if x_position == num_cols - 1:
-            y_position += 1
-            x_position = 1
-        if x_position == 0:
-            if y_position != 1:
-                y_position -= 1
-                x_position = num_cols - 2
-            else:
-                x_position = 1    
+     
 
 
 curses.wrapper(main)
+
+"""
+TODO before moving to actual client
+
+recieved window should put new messages on new line with some basic formatting
+
+wrap long text in received window
+
+scroll messages when they fill page
+
+after moving to client:
+
+set a fixed number of lines for input and resize as necessary
+
+Formatting received window:
+we have to keep track of received cursor pos. 
+
+
+"""

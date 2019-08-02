@@ -34,4 +34,4 @@ bonus features:
 	- user/message history
 	- Data analytics
 	- Full-text search
-	- and more
+	- and more ...

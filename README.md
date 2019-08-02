@@ -23,7 +23,6 @@ bonus features:
 - dockerize it 
 - adding useful text commands (/join to join a chatroom, /l to list public chatrooms)
 - pretty colors :)
-- import colorschemes
 - analysis of your message history
 - admin privileges to starters of group messages/chatrooms, etc.
 - image rendering 

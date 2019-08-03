@@ -6,6 +6,7 @@ import asyncio
 from aioconsole import ainput
 import curses
 import logging
+import datetime
 
 logging.basicConfig(filename='server.log',
                             filemode='a',
@@ -75,18 +76,36 @@ class CursorPosition:
     def __init__(self,startY,startX):
         self.y = startY
         self.x = startX
+
+def paint_message(received_window, received_window_cursor, num_cols, built_str):
+    curr_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+
+    received_window.addstr(received_window_cursor.y, 1, f'> {curr_time}')
+    received_window_cursor.y += 1
+
+    str_to_paint = "".join(built_str)
+    built_str.clear()
+    while True:
+        received_window.addstr(received_window_cursor.y, 1, str_to_paint[:num_cols-2])
+        received_window_cursor.y += 1
+        if len(str_to_paint) > num_cols - 2:
+            str_to_paint = str_to_paint[num_cols-2:]
+        else:
+            break
+    
+    received_window.refresh()
+
+    # received_window.addstr(received_window_cursor.y, 1, '> ' + "".join(built_str))
+    # received_window_cursor.y += int(1 + (len(built_str) / num_cols))
+
         
 def send_message(input_window, received_window, input_window_cursor, received_window_cursor, num_cols, built_str):
     input_window.erase()
     input_window.border('|', '|', '-', '-', '+', '+', '+', '+')
     input_window.refresh()
-
-    
-    received_window.addstr(received_window_cursor.y, 1, "".join(built_str))
-    received_window_cursor.y += int(1 + (len(built_str) / num_cols))
-    received_window.refresh()
     input_window_cursor.x = input_window_cursor.y = 1
-    built_str.clear()
+    paint_message(received_window, received_window_cursor, num_cols, built_str)
+
 
 def backspace(input_window, input_window_cursor, built_str, num_cols):
     if len(built_str) <= 0:
@@ -125,7 +144,7 @@ def input_loop(input_window,received_window,num_cols):
 
         if ch != curses.ERR:
             if ch == ord('\n'):
-                send_message(input_window, received_window, input_window_cursor, received_window_cursor, num_cols, built_str)
+                send_message(input_window, received_window, input_window_cursor, received_window_cursor, num_cols, built_str) if built_str else None
             elif ch == 127:
                 backspace(input_window, input_window_cursor, built_str, num_cols)
             else:
@@ -154,18 +173,8 @@ curses.wrapper(main)
 """
 TODO before moving to actual client
 
-recieved window should put new messages on new line with some basic formatting
-
-wrap long text in received window
-
 scroll messages when they fill page
 
 after moving to client:
-
 set a fixed number of lines for input and resize as necessary
-
-Formatting received window:
-we have to keep track of received cursor pos. 
-
-
 """

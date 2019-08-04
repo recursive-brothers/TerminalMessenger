@@ -8,7 +8,7 @@ import curses
 import logging
 import datetime
 
-logging.basicConfig(filename='server.log',
+logging.basicConfig(filename='client.log',
                             filemode='a',
                             datefmt='%H:%M:%S',
                             level=logging.DEBUG)
@@ -48,7 +48,7 @@ async def background_tasks(s):
     await get_input
 
 
-def draw_input_window(rows,cols,startY,startX):
+def init_input_window(rows,cols,startY,startX):
     input_window = curses.newwin(rows,cols,startY,startX)
     input_window.border('|', '|', '-', '-', '+', '+', '+', '+')
     input_window.refresh()
@@ -57,10 +57,13 @@ def draw_input_window(rows,cols,startY,startX):
     
 
 
-def draw_received_window(rows,cols,startY,startX):
-    received_window = curses.newwin(rows,cols,startY,startX)
-    received_window.border('|', '|', '-', '-', '+', '+', '+', '+')
-    received_window.refresh()
+def init_received_window(rows,cols,startY,startX):
+    # received_window = curses.newwin(rows,cols,startY,startX)
+    received_window = curses.newpad(rows,cols)
+    received_window.scrollok(True)
+    received_window.idlok(True)
+    # received_window.border('|', '|', '-', '-', '+', '+', '+', '+')
+    received_window.refresh(0,0,startY,startX,rows,cols)
     return received_window
 
 class CursorPosition:
@@ -68,34 +71,40 @@ class CursorPosition:
         self.y = startY
         self.x = startX
 
-def paint_message(received_window, received_window_cursor, num_cols, built_str):
+def paint_message(received_window, received_window_cursor, num_cols, num_rows, built_str):
+    message_height = int(2 + len(built_str)/(num_cols-2))
+    lines_to_scroll = (message_height + received_window_cursor.y) - num_rows
+    logging.debug(lines_to_scroll)
+
+    if lines_to_scroll > 0:
+        received_window.resize(num_rows + lines_to_scroll, num_cols)
+        received_window.scroll(lines_to_scroll)
+        received_window_cursor.y -= lines_to_scroll
+        
     curr_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
 
-    received_window.addstr(received_window_cursor.y, 1, f'> {curr_time}')
+    received_window.addstr(received_window_cursor.y, received_window_cursor.x, f'> {curr_time}')
     received_window_cursor.y += 1
 
     str_to_paint = "".join(built_str)
     built_str.clear()
     while True:
-        received_window.addstr(received_window_cursor.y, 1, str_to_paint[:num_cols-2])
+        received_window.addstr(received_window_cursor.y, received_window_cursor.x, str_to_paint[:num_cols-2])
         received_window_cursor.y += 1
         if len(str_to_paint) > num_cols - 2:
             str_to_paint = str_to_paint[num_cols-2:]
         else:
             break
     
-    received_window.refresh()
-
-    # received_window.addstr(received_window_cursor.y, 1, '> ' + "".join(built_str))
-    # received_window_cursor.y += int(1 + (len(built_str) / num_cols))
-
+    received_window.refresh(0,0,0,0,num_rows,num_cols)
+    
         
-def send_message(input_window, received_window, input_window_cursor, received_window_cursor, num_cols, built_str):
+def send_message(input_window, received_window, input_window_cursor, received_window_cursor, num_cols, num_rows, built_str):
     input_window.erase()
     input_window.border('|', '|', '-', '-', '+', '+', '+', '+')
     input_window.refresh()
     input_window_cursor.x = input_window_cursor.y = 1
-    paint_message(received_window, received_window_cursor, num_cols, built_str)
+    paint_message(received_window, received_window_cursor, num_cols, num_rows, built_str)
 
 
 def backspace(input_window, input_window_cursor, built_str, num_cols):
@@ -124,10 +133,10 @@ def build_message(input_window, input_window_cursor, built_str, num_cols, ch):
 
 
 
-def input_loop(input_window,received_window,num_cols):
+def input_loop(input_window,received_window,num_cols, num_rows):
     built_str = []
     input_window_cursor = CursorPosition(1,1)
-    received_window_cursor = CursorPosition(1,1)
+    received_window_cursor = CursorPosition(0,1)
 
 
     while True:
@@ -135,11 +144,14 @@ def input_loop(input_window,received_window,num_cols):
 
         if ch != curses.ERR:
             if ch == ord('\n'):
-                send_message(input_window, received_window, input_window_cursor, received_window_cursor, num_cols, built_str) if built_str else None
+                send_message(input_window, received_window, input_window_cursor, received_window_cursor, num_cols, num_rows, built_str) if built_str else None
             elif ch == 127:
                 backspace(input_window, input_window_cursor, built_str, num_cols)
+            # elif ch == curses.KEY_UP:
+                
             else:
                 build_message(input_window, input_window_cursor, built_str, num_cols, ch)
+            
 
 def main(stdscr):
     # curses.echo()
@@ -148,13 +160,13 @@ def main(stdscr):
     received_messages_rows = int(.85 * num_rows)
     sending_message_rows = num_rows - received_messages_rows
 
-    received_window = draw_received_window(received_messages_rows,num_cols,0,0)
-    input_window = draw_input_window(sending_message_rows,num_cols,received_messages_rows,0)
+    received_window = init_received_window(received_messages_rows,num_cols,0,0)
+    input_window = init_input_window(sending_message_rows,num_cols,received_messages_rows,0)
 
     input_window.nodelay(True)
     received_window.nodelay(True)
 
-    input_loop(input_window,received_window,num_cols)
+    input_loop(input_window,received_window,num_cols, received_messages_rows)
 
      
 

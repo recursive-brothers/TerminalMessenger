@@ -46,15 +46,6 @@ async def background_tasks(s):
     get_output = asyncio.ensure_future(get_messages(s))
     await get_output
     await get_input
-    
-
-# with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-#     s.connect((HOST, PORT))
-#     s.setblocking(False)
-#     loop = asyncio.get_event_loop()
-#     loop.run_until_complete(background_tasks(s))
-    
-
 
 
 def draw_input_window(rows,cols,startY,startX):

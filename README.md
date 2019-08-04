@@ -27,3 +27,13 @@ bonus features:
 - admin privileges to starters of group messages/chatrooms, etc.
 - image rendering 
 - security (blocking ips,etc)
+<<<<<<< HEAD
+=======
+- text search for previous messages
+- emojis
+- HTTP server that serves:
+	- user/message history
+	- Data analytics
+	- Full-text search
+	- and more ...
+>>>>>>> c8e16e1c9c394f50303775cb80eeb98d91d8cf13

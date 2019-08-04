@@ -29,4 +29,9 @@ bonus features:
 - image rendering 
 - security (blocking ips,etc)
 - text search for previous messages
-emojis
+- emojis
+- HTTP server that serves:
+	- user/message history
+	- Data analytics
+	- Full-text search
+	- and more

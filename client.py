@@ -196,4 +196,8 @@ scroll messages when they fill page
 
 after moving to client:
 set a fixed number of lines for input and resize as necessary
+
+EDGE CASES for scrolling
+trying to scroll above all the messages that exist
+trying to scroll past the messages that have been pasted
 """

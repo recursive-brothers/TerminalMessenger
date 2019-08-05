@@ -22,7 +22,7 @@ args = parser.parse_args()
 
 HOST = '18.222.230.158'  # The server's hostname or IP address
 PORT = int(args.port) # The port used by the server
-
+scroll = 0
 
 async def get_user_input(server_socket):
     while True:
@@ -72,14 +72,18 @@ class CursorPosition:
         self.x = startX
 
 def paint_message(received_window, received_window_cursor, num_cols, num_rows, built_str):
+    global scroll
     message_height = int(2 + len(built_str)/(num_cols-2))
-    lines_to_scroll = (message_height + received_window_cursor.y) - num_rows
+    lines_to_scroll = (message_height + received_window_cursor.y-scroll) - num_rows
     logging.debug(lines_to_scroll)
 
     if lines_to_scroll > 0:
-        received_window.resize(num_rows + lines_to_scroll, num_cols)
-        received_window.scroll(lines_to_scroll)
-        received_window_cursor.y -= lines_to_scroll
+        scroll += lines_to_scroll
+        logging.debug(scroll)
+        logging.debug(num_rows+scroll)
+        received_window.resize(num_rows + scroll, num_cols)
+        
+        
         
     curr_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
 
@@ -96,7 +100,7 @@ def paint_message(received_window, received_window_cursor, num_cols, num_rows, b
         else:
             break
     
-    received_window.refresh(0,0,0,0,num_rows,num_cols)
+    received_window.refresh(scroll,0,0,0,num_rows,num_cols)
     
         
 def send_message(input_window, received_window, input_window_cursor, received_window_cursor, num_cols, num_rows, built_str):
@@ -131,9 +135,20 @@ def build_message(input_window, input_window_cursor, built_str, num_cols, ch):
         input_window_cursor.y += 1
         input_window_cursor.x = 1
 
+def received_window_scroll(input_window,received_window,num_rows,num_cols):
+    global scroll
+    input_window.getch()
+    ch = input_window.getch()
+    if ch == 65:
+        scroll -= 1 
+    elif ch == 66:
+        scroll += 1
+
+    received_window.refresh(scroll,0,0,0,num_rows,num_cols)
 
 
 def input_loop(input_window,received_window,num_cols, num_rows):
+    global scroll
     built_str = []
     input_window_cursor = CursorPosition(1,1)
     received_window_cursor = CursorPosition(0,1)
@@ -147,11 +162,11 @@ def input_loop(input_window,received_window,num_cols, num_rows):
                 send_message(input_window, received_window, input_window_cursor, received_window_cursor, num_cols, num_rows, built_str) if built_str else None
             elif ch == 127:
                 backspace(input_window, input_window_cursor, built_str, num_cols)
-            # elif ch == curses.KEY_UP:
-                
+            elif ch == 27:
+                received_window_scroll(input_window,received_window,num_rows,num_cols) 
             else:
                 build_message(input_window, input_window_cursor, built_str, num_cols, ch)
-            
+    
 
 def main(stdscr):
     # curses.echo()
@@ -165,6 +180,7 @@ def main(stdscr):
 
     input_window.nodelay(True)
     received_window.nodelay(True)
+
 
     input_loop(input_window,received_window,num_cols, received_messages_rows)
 

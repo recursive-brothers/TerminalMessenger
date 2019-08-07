@@ -57,12 +57,12 @@ def init_input_window(rows,cols,startY,startX):
     
 
 
-def init_received_window(rows,cols,startY,startX):
-    received_window = curses.newpad(rows,cols)
-    received_window.scrollok(True)
-    received_window.idlok(True)
-    received_window.refresh(0,0,0,0,rows,cols)
-    return received_window
+# def init_received_window(rows,cols,startY,startX):
+#     received_window = curses.newpad(rows,cols)
+#     received_window.scrollok(True)
+#     received_window.idlok(True)
+#     received_window.refresh(0,0,0,0,rows,cols)
+#     return received_window
 
 class CursorPosition:
     def __init__(self,startY,startX):
@@ -70,47 +70,90 @@ class CursorPosition:
         self.x = startX
 
 class ReceivedWindow:
-    def __init__(self, startY, startX):
-        pass
+    def __init__(self, num_rows, num_cols, startY, startX):
+        self.cursor = CursorPosition(startY, startX)
+        self.window = curses.newpad(num_rows, num_cols)
+        self.width = num_cols
+        self.height = num_rows
 
-def paint_message(received_window, received_window_cursor, num_cols, num_rows, built_str):
-    global scroll
-    message_height = int(2 + len(built_str)/(num_cols-2))
-    lines_to_scroll = (message_height + received_window_cursor.y-scroll) - num_rows
-    logging.debug(lines_to_scroll)
+        self.display_width = num_cols
+        self.display_height = num_rows
 
-    if lines_to_scroll > 0:
-        scroll += lines_to_scroll
-        logging.debug(scroll)
-        logging.debug(num_rows+scroll)
-        received_window.resize(num_rows + scroll, num_cols)
+        self.top_left = CursorPosition(0, 0)
+
+        self.window.scrollok(True)
+        self.window.idlok(True)
+        self.window.nodelay(True)
+        self.window.refresh(0, 0, 0, 0, num_rows, num_cols)
+
+    def refresh(self):
+        self.window.refresh(self.top_left.y, self.top_left.x, 0, 0, self.display_height, self.display_width)
+
+    def scroll(self, lines):
+        self.top_left.y += lines
+        self.refresh()
+
+    def paint_message(self, built_str):
+        message_height = int(2 + len(built_str) / (self.width - 2))
+        lines_to_scroll = message_height + self.cursor.y - self.height
+
+        if lines_to_scroll > 0:
+            self.height += lines_to_scroll
+            self.scroll(lines_to_scroll)
+            self.window.resize(self.height, self.width)
+
+        curr_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        self.window.addstr(self.cursor.y, self.cursor.x, f'> {curr_time}')
+        self.cursor.y += 1
+
+        while True:
+            self.window.addstr(self.cursor.y, self.cursor.x, built_str[:self.width - 2])
+            self.cursor.y += 1
+            if len(built_str) > self.width - 2:
+                built_str = built_str[self.width-2:]
+            else:
+                break
+
+        self.refresh()
+
+
+# def paint_message(received_window, num_cols, num_rows, built_str):
+    # global scroll
+    # message_height = int(2 + len(built_str)/(num_cols-2))
+    # lines_to_scroll = (message_height + received_window.cursor.y-scroll) - num_rows
+    # logging.debug(lines_to_scroll)
+
+    # if lines_to_scroll > 0:
+    #     scroll += lines_to_scroll
+    #     logging.debug(scroll)
+    #     logging.debug(num_rows + scroll)
+    #     received_window.window.resize(num_rows + scroll, num_cols)
         
-        
-        
-    curr_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+    # curr_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
 
-    received_window.addstr(received_window_cursor.y, received_window_cursor.x, f'> {curr_time}')
-    received_window_cursor.y += 1
+    # received_window.window.addstr(received_window.cursor.y, received_window.cursor.x, f'> {curr_time}')
+    # received_window.cursor.y += 1
 
-    str_to_paint = "".join(built_str)
-    built_str.clear()
-    while True:
-        received_window.addstr(received_window_cursor.y, received_window_cursor.x, str_to_paint[:num_cols-2])
-        received_window_cursor.y += 1
-        if len(str_to_paint) > num_cols - 2:
-            str_to_paint = str_to_paint[num_cols-2:]
-        else:
-            break
+    # str_to_paint = "".join(built_str)
+    # built_str.clear()
+    # while True:
+    #     received_window.window.addstr(received_window.cursor.y, received_window.cursor.x, str_to_paint[:num_cols-2])
+    #     received_window.cursor.y += 1
+    #     if len(str_to_paint) > num_cols - 2:
+    #         str_to_paint = str_to_paint[num_cols-2:]
+    #     else:
+    #         break
     
-    received_window.refresh(scroll,0,0,0,num_rows,num_cols)
+    # received_window.window.refresh(scroll, 0, 0, 0, num_rows, num_cols)
     
         
-def send_message(input_window, received_window, input_window_cursor, received_window_cursor, num_cols, num_rows, built_str):
+def send_message(input_window, received_window, input_window_cursor, num_cols, num_rows, built_str):
     input_window.erase()
     input_window.border('|', '|', '-', '-', '+', '+', '+', '+')
     input_window.refresh()
     input_window_cursor.x = input_window_cursor.y = 1
-    paint_message(received_window, received_window_cursor, num_cols, num_rows, built_str)
+    received_window.paint_message("".join(built_str))
+    built_str.clear()
 
 
 def backspace(input_window, input_window_cursor, built_str, num_cols):
@@ -137,34 +180,30 @@ def build_message(input_window, input_window_cursor, built_str, num_cols, ch):
         input_window_cursor.y += 1
         input_window_cursor.x = 1
 
-def received_window_scroll(input_window,received_window,num_rows,num_cols):
+def received_window_scroll(input_window, received_window, num_rows, num_cols):
     global scroll
     input_window.getch()
     ch = input_window.getch()
     if ch == 65:
-        scroll -= 1 
+        received_window.scroll(-1)
     elif ch == 66:
-        scroll += 1
+        received_window.scroll(1)
 
-    received_window.refresh(scroll,0,0,0,num_rows,num_cols)
-
-
-def input_loop(input_window,received_window,num_cols, num_rows):
+def input_loop(input_window, received_window, num_cols, num_rows):
     global scroll
     built_str = []
     input_window_cursor = CursorPosition(1,1)
-    received_window_cursor = CursorPosition(0,1)
 
     while True:
         ch = input_window.getch(input_window_cursor.y, input_window_cursor.x)
 
         if ch != curses.ERR:
             if ch == ord('\n'):
-                send_message(input_window, received_window, input_window_cursor, received_window_cursor, num_cols, num_rows, built_str) if built_str else None
+                send_message(input_window, received_window, input_window_cursor, num_cols, num_rows, built_str) if built_str else None
             elif ch == 127:
                 backspace(input_window, input_window_cursor, built_str, num_cols)
             elif ch == 27:
-                received_window_scroll(input_window,received_window,num_rows,num_cols) 
+                received_window_scroll(input_window, received_window, num_rows, num_cols) 
             else:
                 build_message(input_window, input_window_cursor, built_str, num_cols, ch)
     
@@ -175,14 +214,16 @@ def main(stdscr):
     received_messages_rows = int(.85 * num_rows)
     sending_message_rows = num_rows - received_messages_rows
 
-    received_window = init_received_window(received_messages_rows,num_cols,0,0)
+    # might want to put these numbers into constants up top or somewhere so that it's easy to change and makes some goddamn sense
+    received_window = ReceivedWindow(received_messages_rows, num_cols, 0, 1)
+    
     input_window = init_input_window(sending_message_rows,num_cols,received_messages_rows,0)
 
     input_window.nodelay(True)
-    received_window.nodelay(True)
+    # received_window.nodelay(True)
 
 
-    input_loop(input_window,received_window,num_cols, received_messages_rows)
+    input_loop(input_window, received_window, num_cols, received_messages_rows)
 
      
 
@@ -196,6 +237,9 @@ To keep in mind:
 
 Create a class for received window/pad, then do the same for input window, then, if there's enough similarity to justify it (and only if), then we can abstract that into another parent class
     If and ONLY IF (big Schnyder letters) we get to call it pee
+
+Would also be nice to factor out num_rows and num_cols potentially into a screen class or something, and also create a string builder for built_str instead of doing it manually
+We have to make a decision about what we choose to call received_window
 """
 
 """

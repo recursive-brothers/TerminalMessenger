@@ -58,18 +58,20 @@ def init_input_window(rows,cols,startY,startX):
 
 
 def init_received_window(rows,cols,startY,startX):
-    # received_window = curses.newwin(rows,cols,startY,startX)
     received_window = curses.newpad(rows,cols)
     received_window.scrollok(True)
     received_window.idlok(True)
-    # received_window.border('|', '|', '-', '-', '+', '+', '+', '+')
-    received_window.refresh(0,0,startY,startX,rows,cols)
+    received_window.refresh(0,0,0,0,rows,cols)
     return received_window
 
 class CursorPosition:
     def __init__(self,startY,startX):
         self.y = startY
         self.x = startX
+
+class ReceivedWindow:
+    def __init__(self, startY, startX):
+        pass
 
 def paint_message(received_window, received_window_cursor, num_cols, num_rows, built_str):
     global scroll
@@ -153,7 +155,6 @@ def input_loop(input_window,received_window,num_cols, num_rows):
     input_window_cursor = CursorPosition(1,1)
     received_window_cursor = CursorPosition(0,1)
 
-
     while True:
         ch = input_window.getch(input_window_cursor.y, input_window_cursor.x)
 
@@ -169,7 +170,6 @@ def input_loop(input_window,received_window,num_cols, num_rows):
     
 
 def main(stdscr):
-    # curses.echo()
     num_rows, num_cols = stdscr.getmaxyx()
     
     received_messages_rows = int(.85 * num_rows)
@@ -188,6 +188,15 @@ def main(stdscr):
 
 
 curses.wrapper(main)
+
+"""
+To keep in mind:
+1. the 'keep track of total offset with scroll' functionality is the most gay thing ever created
+2. Ideally, we encapsulate some of this scroll and redraw functionality in methods and encapsulate that in the class
+
+Create a class for received window/pad, then do the same for input window, then, if there's enough similarity to justify it (and only if), then we can abstract that into another parent class
+    If and ONLY IF (big Schnyder letters) we get to call it pee
+"""
 
 """
 TODO before moving to actual client

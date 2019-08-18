@@ -55,11 +55,10 @@ def close_client_connection(client_socket, address):
 	client_socket.close()
 	list_of_sockets.remove(client_socket)
 
-def send_to_others(recv_data, source_client):
+def send_to_all(recv_data, source_client):
 	log_debug_info('client sent ->', recv_data.decode())
 	for socket in list_of_sockets:
-		if socket != source_client:
-			socket.send(recv_data)
+		socket.send(recv_data)
 
 def handle_client(socket_wrapper, events):
 	recv_data = None 
@@ -75,7 +74,7 @@ def handle_client(socket_wrapper, events):
 			log_debug_info(traceback.format_exc())
 			log_debug_info("OSERROR OCCURRED: ENDING LOGGING")
 		if recv_data:
-			send_to_others(recv_data, client_socket)
+			send_to_all(recv_data, client_socket)
 		else:
 			close_client_connection(client_socket, socket_wrapper.data)
 

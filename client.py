@@ -156,12 +156,11 @@ class InputWindow:
     def get_input(self):
         return self.window.getch(self.cursor.y, self.cursor.x)
     
-    def backspace(self, built_str):
-        if self.cursor.x <= 1:
+    def backspace(self):
+        if self.cursor.x <= 1 and self.cursor.y <=1:
             return
         self.window.addstr(self.cursor.y, self.cursor.x - 1, "  ")
         self.window.refresh()
-        built_str.pop()
         self.cursor.x -= 1
     
         if self.cursor.x == 0:
@@ -219,7 +218,7 @@ async def get_messages(server_socket, received_window):
         if received_message:
             received_window.paint_message(received_message)
 
-        await asyncio.sleep(.1)
+        await asyncio.sleep(.001)
 
           
 async def background_tasks(s):

@@ -28,6 +28,9 @@ bonus features:
 - image rendering 
 - security (blocking ips,etc)
 - text search for previous messages
+- mouse up to get past messages
+- scrollable text area
+- input autocomplete
 - emojis
 - HTTP server that serves:
 	- user/message history

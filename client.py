@@ -161,7 +161,7 @@ class InputWindow:
         logging.debug("in backspace!")
         if self.cursor.x <= 1 and self.cursor.y <=1:
             return
-        self.window.addstr(self.cursor.y, self.cursor.x - 1, "")
+        self.window.addstr(self.cursor.y, self.cursor.x - 1, " ")
         self.window.refresh()
         self.cursor.x -= 1
     
@@ -227,6 +227,8 @@ async def get_messages(server_socket, received_window):
           
 async def background_tasks(s):
     stdscr = curses.initscr()
+    curses.noecho()
+    
     num_rows, num_cols = stdscr.getmaxyx()
     
     received_messages_rows = int(.85 * num_rows)

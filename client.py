@@ -22,53 +22,11 @@ args = parser.parse_args()
 
 HOST = '18.222.230.158'  # The server's hostname or IP address
 PORT = int(args.port) # The port used by the server
-scroll = 0
 
 
-async def get_user_input(server_socket):
-    while True:
-        message = await ainput("> ")
-        # message = input_window.get_input()
-        # should be handling input loop logic
-        server_socket.sendall(message.encode())
-        await asyncio.sleep(.1)
-
-async def get_messages(server_socket):
-    while True:
-        received_message = None
-        try:
-            received_message = server_socket.recv(1024).decode()
-        except:
-            pass
-        if received_message:
-            print('\n' + received_message + '\n> ', end='')
-            # received_window.display_message()
-        await asyncio.sleep(.1)
-
-def main(stdscr):
-    num_rows, num_cols = stdscr.getmaxyx()
-    
-    received_messages_rows = int(.85 * num_rows)
-    sending_message_rows = num_rows - received_messages_rows
-
-    # might want to put these numbers into constants up top or somewhere so that it's easy to change and makes some goddamn sense
-    received_window = ReceivedWindow(received_messages_rows, num_cols, 0, 1)
-    
-    input_window = init_input_window(sending_message_rows,num_cols,received_messages_rows,0)
-
-    input_window.nodelay(True)
-    # received_window.nodelay(True)
 
 
-    input_loop(input_window, received_window, num_cols, received_messages_rows)
-          
-async def background_tasks(s):
-    
-
-    get_input = asyncio.ensure_future(get_user_input(s))
-    get_output = asyncio.ensure_future(get_messages(s))
-    await get_output
-    await get_input
+        
 
 
 def init_input_window(rows,cols,startY,startX):
@@ -167,7 +125,6 @@ def build_message(input_window, input_window_cursor, built_str, num_cols, ch):
         input_window_cursor.x = 1
 
 def received_window_scroll(input_window, received_window, num_rows, num_cols):
-    global scroll
     input_window.getch()
     ch = input_window.getch()
     if ch == 65:
@@ -176,7 +133,6 @@ def received_window_scroll(input_window, received_window, num_rows, num_cols):
         received_window.scroll(1)
 
 def input_loop(input_window, received_window, num_cols, num_rows):
-    global scroll
     built_str = []
     input_window_cursor = CursorPosition(1,1)
 
@@ -213,8 +169,71 @@ def main(stdscr):
 
      
 
+async def get_user_input(server_socket, input_window, received_window, num_rows, num_cols):
+    built_str = []
+    input_window_cursor = CursorPosition(1,1)
 
-curses.wrapper(main)
+    while True:
+        ch = input_window.getch(input_window_cursor.y, input_window_cursor.x)
+
+        if ch != curses.ERR:
+            if ch == ord('\n'):
+                if built_str:
+                    input_window.erase()
+                    input_window.border('|', '|', '-', '-', '+', '+', '+', '+')
+                    input_window.refresh()
+                    input_window_cursor.x = input_window_cursor.y = 1
+                    built_str.clear()
+                    server_socket.sendall("".join(built_str).encode())
+            elif ch == 127:
+                backspace(input_window, input_window_cursor, built_str, num_cols)
+            elif ch == 27:
+                received_window_scroll(input_window, received_window, num_rows, num_cols) 
+            else:
+                build_message(input_window, input_window_cursor, built_str, num_cols, ch)
+
+        await asyncio.sleep(.1)
+
+async def get_messages(server_socket, received_window):
+    while True:
+        received_message = None
+        try:
+            received_message = server_socket.recv(1024).decode()
+        except:
+            pass
+        if received_message:
+            received_window.paint_message(received_message)
+            # print('\n' + received_message + '\n> ', end='')
+            # received_window.display_message()
+        await asyncio.sleep(.1)
+
+          
+async def background_tasks(s):
+    stdscr = curses.initscr()
+    num_rows, num_cols = stdscr.getmaxyx()
+    
+    received_messages_rows = int(.85 * num_rows)
+    sending_message_rows = num_rows - received_messages_rows
+
+    # might want to put these numbers into constants up top or somewhere so that it's easy to change and makes some goddamn sense
+    received_window = ReceivedWindow(received_messages_rows, num_cols, 0, 1)
+    
+    input_window = init_input_window(sending_message_rows,num_cols,received_messages_rows,0)
+
+    input_window.nodelay(True)
+
+    get_input = asyncio.ensure_future(get_user_input(s, input_window, received_window, num_cols, received_messages_rows))
+    get_output = asyncio.ensure_future(get_messages(s, received_window))
+    await get_output
+    await get_input
+
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    s.connect((HOST, PORT))
+    s.setblocking(False)
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(background_tasks(s))
+
+# curses.wrapper(main)
 
 """
 To keep in mind:

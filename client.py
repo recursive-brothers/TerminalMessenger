@@ -140,7 +140,15 @@ class InputWindow:
         self.window.refresh()
         self.cursor.x = self.cursor.y = 1
 
-        
+    def add_char(self,ch):
+        self.window.addstr(self.cursor.y,self.cursor.x,chr(ch))
+        self.cursor.x += 1 
+
+        if self.cursor.x == self.width - 1:
+            self.cursor.y += 1
+            self.cursor.x = 1
+
+
     
     def add_border(self):
         self.window.border('|', '|', '-', '-', '+', '+', '+', '+')
@@ -165,10 +173,10 @@ class InputWindow:
 
 async def get_user_input(server_socket, input_window, received_window, num_rows, num_cols):
     built_str = []
-    input_window_cursor = CursorPosition(1,1)
+    
 
     while True:
-        ch = input_window.getch(input_window_cursor.y, input_window_cursor.x)
+        ch = input_window.get_input()
 
         if ch != curses.ERR:
             if ch == ord('\n'):
@@ -180,7 +188,7 @@ async def get_user_input(server_socket, input_window, received_window, num_rows,
                     input_window.clear_text()
                     server_socket.sendall("".join(built_str).encode())
                     built_str.clear()
-                    
+
             elif ch == 127:
                 if built_str:
                     built_str.pop()
@@ -188,15 +196,16 @@ async def get_user_input(server_socket, input_window, received_window, num_rows,
                 # backspace(input_window, input_window_cursor, built_str, num_cols)
 
             elif ch == 27:
-                input_window.getch()
-                scroll_direction = input_window.getch()
+                input_window.get_input()
+                scroll_direction = input_window.get_input()
                 if scroll_direction == 65:
                     received_window.scroll(-1)
                 elif scroll_direction == 66:
                     received_window.scroll(1)
 
             else:
-                build_message(input_window, input_window_cursor, built_str, num_cols, ch)
+                built_str.append(chr(ch))
+                input_window.add_char(ch)
 
         await asyncio.sleep(.1)
 
@@ -223,9 +232,9 @@ async def background_tasks(s):
     # might want to put these numbers into constants up top or somewhere so that it's easy to change and makes some goddamn sense
     received_window = ReceivedWindow(received_messages_rows, num_cols, 0, 1)
     
-    input_window = init_input_window(sending_message_rows,num_cols,received_messages_rows,0)
+    input_window = InputWindow(sending_message_rows,num_cols,received_messages_rows,0,1,1)
 
-    input_window.nodelay(True)
+    
 
     get_input = asyncio.ensure_future(get_user_input(s, input_window, received_window, num_cols, received_messages_rows))
     get_output = asyncio.ensure_future(get_messages(s, received_window))

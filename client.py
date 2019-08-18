@@ -228,6 +228,7 @@ async def get_messages(server_socket, received_window):
 async def background_tasks(s):
     stdscr = curses.initscr()
     curses.noecho()
+    curses.cbreak()
     
     num_rows, num_cols = stdscr.getmaxyx()
     

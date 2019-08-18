@@ -141,6 +141,7 @@ class InputWindow:
         self.cursor.x = self.cursor.y = 1
 
     def add_char(self,ch):
+        logging.debug("in add char")
         self.window.addstr(self.cursor.y,self.cursor.x,chr(ch))
         self.cursor.x += 1 
 
@@ -157,9 +158,10 @@ class InputWindow:
         return self.window.getch(self.cursor.y, self.cursor.x)
     
     def backspace(self):
+        logging.debug("in backspace!")
         if self.cursor.x <= 1 and self.cursor.y <=1:
             return
-        self.window.addstr(self.cursor.y, self.cursor.x - 1, "  ")
+        self.window.addstr(self.cursor.y, self.cursor.x - 1, "")
         self.window.refresh()
         self.cursor.x -= 1
     
@@ -176,6 +178,8 @@ async def get_user_input(server_socket, input_window, received_window, num_rows,
 
     while True:
         ch = input_window.get_input()
+        if not ch == -1:
+            logging.debug(ch)
 
         if ch != curses.ERR:
             if ch == ord('\n'):
@@ -206,7 +210,7 @@ async def get_user_input(server_socket, input_window, received_window, num_rows,
                 built_str.append(chr(ch))
                 input_window.add_char(ch)
 
-        await asyncio.sleep(.1)
+        await asyncio.sleep(.001)
 
 async def get_messages(server_socket, received_window):
     while True:

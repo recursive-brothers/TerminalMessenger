@@ -24,9 +24,12 @@ HOST = '18.222.230.158'  # The server's hostname or IP address
 PORT = int(args.port) # The port used by the server
 scroll = 0
 
+
 async def get_user_input(server_socket):
     while True:
         message = await ainput("> ")
+        # message = input_window.get_input()
+        # should be handling input loop logic
         server_socket.sendall(message.encode())
         await asyncio.sleep(.1)
 
@@ -39,9 +42,29 @@ async def get_messages(server_socket):
             pass
         if received_message:
             print('\n' + received_message + '\n> ', end='')
+            # received_window.display_message()
         await asyncio.sleep(.1)
+
+def main(stdscr):
+    num_rows, num_cols = stdscr.getmaxyx()
+    
+    received_messages_rows = int(.85 * num_rows)
+    sending_message_rows = num_rows - received_messages_rows
+
+    # might want to put these numbers into constants up top or somewhere so that it's easy to change and makes some goddamn sense
+    received_window = ReceivedWindow(received_messages_rows, num_cols, 0, 1)
+    
+    input_window = init_input_window(sending_message_rows,num_cols,received_messages_rows,0)
+
+    input_window.nodelay(True)
+    # received_window.nodelay(True)
+
+
+    input_loop(input_window, received_window, num_cols, received_messages_rows)
           
 async def background_tasks(s):
+    
+
     get_input = asyncio.ensure_future(get_user_input(s))
     get_output = asyncio.ensure_future(get_messages(s))
     await get_output
@@ -110,36 +133,6 @@ class ReceivedWindow:
         self.refresh()
 
 
-# def paint_message(received_window, num_cols, num_rows, built_str):
-    # global scroll
-    # message_height = int(2 + len(built_str)/(num_cols-2))
-    # lines_to_scroll = (message_height + received_window.cursor.y-scroll) - num_rows
-    # logging.debug(lines_to_scroll)
-
-    # if lines_to_scroll > 0:
-    #     scroll += lines_to_scroll
-    #     logging.debug(scroll)
-    #     logging.debug(num_rows + scroll)
-    #     received_window.window.resize(num_rows + scroll, num_cols)
-        
-    # curr_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-
-    # received_window.window.addstr(received_window.cursor.y, received_window.cursor.x, f'> {curr_time}')
-    # received_window.cursor.y += 1
-
-    # str_to_paint = "".join(built_str)
-    # built_str.clear()
-    # while True:
-    #     received_window.window.addstr(received_window.cursor.y, received_window.cursor.x, str_to_paint[:num_cols-2])
-    #     received_window.cursor.y += 1
-    #     if len(str_to_paint) > num_cols - 2:
-    #         str_to_paint = str_to_paint[num_cols-2:]
-    #     else:
-    #         break
-    
-    # received_window.window.refresh(scroll, 0, 0, 0, num_rows, num_cols)
-    
-        
 def send_message(input_window, received_window, input_window_cursor, num_cols, num_rows, built_str):
     input_window.erase()
     input_window.border('|', '|', '-', '-', '+', '+', '+', '+')

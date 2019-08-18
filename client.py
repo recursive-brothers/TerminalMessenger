@@ -57,13 +57,6 @@ def init_input_window(rows,cols,startY,startX):
     
 
 
-# def init_received_window(rows,cols,startY,startX):
-#     received_window = curses.newpad(rows,cols)
-#     received_window.scrollok(True)
-#     received_window.idlok(True)
-#     received_window.refresh(0,0,0,0,rows,cols)
-#     return received_window
-
 class CursorPosition:
     def __init__(self,startY,startX):
         self.y = startY

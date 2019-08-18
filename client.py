@@ -24,11 +24,6 @@ HOST = '18.222.230.158'  # The server's hostname or IP address
 PORT = int(args.port) # The port used by the server
 
 
-
-
-        
-
-
 def init_input_window(rows,cols,startY,startX):
     input_window = curses.newwin(rows,cols,startY,startX)
     input_window.border('|', '|', '-', '-', '+', '+', '+', '+')
@@ -36,8 +31,6 @@ def init_input_window(rows,cols,startY,startX):
     return input_window
     
     
-
-
 class CursorPosition:
     def __init__(self,startY,startX):
         self.y = startY
@@ -124,50 +117,51 @@ def build_message(input_window, input_window_cursor, built_str, num_cols, ch):
         input_window_cursor.y += 1
         input_window_cursor.x = 1
 
-def received_window_scroll(input_window, received_window, num_rows, num_cols):
-    input_window.getch()
-    ch = input_window.getch()
+def received_window_scroll(ch,received_window, num_rows, num_cols):
+    
     if ch == 65:
         received_window.scroll(-1)
     elif ch == 66:
         received_window.scroll(1)
 
-def input_loop(input_window, received_window, num_cols, num_rows):
-    built_str = []
-    input_window_cursor = CursorPosition(1,1)
+class InputWindow:
+    def __init__(self, num_rows, num_cols, startY, startX, cursorY, cursorX):
+        self.height = num_rows
+        self.width = num_cols
+        self.window = curses.newwin(num_rows, num_cols,startY,startX)
+        self.cursor = CursorPosition(cursorY, cursorX)
+        self.window.nodelay(True)
+        self.add_border()
+        self.window.refresh()
+    
+    def clear_text(self):
+        self.window.erase()
+        self.window.border('|', '|', '-', '-', '+', '+', '+', '+')
+        self.window.refresh()
+        self.cursor.x = self.cursor.y = 1
 
-    while True:
-        ch = input_window.getch(input_window_cursor.y, input_window_cursor.x)
-
-        if ch != curses.ERR:
-            if ch == ord('\n'):
-                send_message(input_window, received_window, input_window_cursor, num_cols, num_rows, built_str) if built_str else None
-            elif ch == 127:
-                backspace(input_window, input_window_cursor, built_str, num_cols)
-            elif ch == 27:
-                received_window_scroll(input_window, received_window, num_rows, num_cols) 
+        
+    
+    def add_border(self):
+        self.window.border('|', '|', '-', '-', '+', '+', '+', '+')
+    
+    def get_input(self):
+        return self.window.getch(self.cursor.y, self.cursor.x)
+    
+    def backspace(self, built_str):
+        if self.cursor.x <= 1:
+            return
+        self.window.addstr(self.cursor.y, self.cursor.x - 1, "  ")
+        self.window.refresh()
+        built_str.pop()
+        self.cursor.x -= 1
+    
+        if self.cursor.x == 0:
+            if self.cursor.y != 1:
+                self.cursor.y -= 1
+                self.cursor.x = self.width - 2
             else:
-                build_message(input_window, input_window_cursor, built_str, num_cols, ch)
-    
-
-def main(stdscr):
-    num_rows, num_cols = stdscr.getmaxyx()
-    
-    received_messages_rows = int(.85 * num_rows)
-    sending_message_rows = num_rows - received_messages_rows
-
-    # might want to put these numbers into constants up top or somewhere so that it's easy to change and makes some goddamn sense
-    received_window = ReceivedWindow(received_messages_rows, num_cols, 0, 1)
-    
-    input_window = init_input_window(sending_message_rows,num_cols,received_messages_rows,0)
-
-    input_window.nodelay(True)
-    # received_window.nodelay(True)
-
-
-    input_loop(input_window, received_window, num_cols, received_messages_rows)
-
-     
+                self.cursor.x = 1
 
 async def get_user_input(server_socket, input_window, received_window, num_rows, num_cols):
     built_str = []
@@ -179,16 +173,28 @@ async def get_user_input(server_socket, input_window, received_window, num_rows,
         if ch != curses.ERR:
             if ch == ord('\n'):
                 if built_str:
-                    input_window.erase()
-                    input_window.border('|', '|', '-', '-', '+', '+', '+', '+')
-                    input_window.refresh()
-                    input_window_cursor.x = input_window_cursor.y = 1
+                    # input_window.erase()
+                    # input_window.border('|', '|', '-', '-', '+', '+', '+', '+')
+                    # input_window.refresh()
+                    # input_window_cursor.x = input_window_cursor.y = 1
+                    input_window.clear_text()
                     server_socket.sendall("".join(built_str).encode())
                     built_str.clear()
+                    
             elif ch == 127:
-                backspace(input_window, input_window_cursor, built_str, num_cols)
+                if built_str:
+                    built_str.pop()
+                input_window.backspace()
+                # backspace(input_window, input_window_cursor, built_str, num_cols)
+
             elif ch == 27:
-                received_window_scroll(input_window, received_window, num_rows, num_cols) 
+                input_window.getch()
+                scroll_direction = input_window.getch()
+                if scroll_direction == 65:
+                    received_window.scroll(-1)
+                elif scroll_direction == 66:
+                    received_window.scroll(1)
+
             else:
                 build_message(input_window, input_window_cursor, built_str, num_cols, ch)
 
@@ -203,8 +209,7 @@ async def get_messages(server_socket, received_window):
             pass
         if received_message:
             received_window.paint_message(received_message)
-            # print('\n' + received_message + '\n> ', end='')
-            # received_window.display_message()
+
         await asyncio.sleep(.1)
 
           
@@ -232,8 +237,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.setblocking(False)
     loop = asyncio.get_event_loop()
     loop.run_until_complete(background_tasks(s))
-
-# curses.wrapper(main)
 
 """
 To keep in mind:

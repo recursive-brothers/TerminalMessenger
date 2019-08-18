@@ -39,3 +39,7 @@ bonus features:
 	- gain the ability to send messages from terminal to browser client and vice versa
 	- create a desktop app to accompany the browser version of the client
 	- allow the ability to send images (convert images to ascii art for the terminal)
+- additional Terminal Client features:
+	- split terminal for multiple chatrooms
+	- autocomplete for text commands
+	- sidebar with options for interacting with multiple chatrooms

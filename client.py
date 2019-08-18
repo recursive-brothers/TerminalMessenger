@@ -183,8 +183,8 @@ async def get_user_input(server_socket, input_window, received_window, num_rows,
                     input_window.border('|', '|', '-', '-', '+', '+', '+', '+')
                     input_window.refresh()
                     input_window_cursor.x = input_window_cursor.y = 1
-                    built_str.clear()
                     server_socket.sendall("".join(built_str).encode())
+                    built_str.clear()
             elif ch == 127:
                 backspace(input_window, input_window_cursor, built_str, num_cols)
             elif ch == 27:

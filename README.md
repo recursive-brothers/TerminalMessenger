@@ -31,6 +31,7 @@ bonus features:
 - mouse up to get past messages
 - scrollable text area
 - input autocomplete
+- add messages for users that connected/disconnected to the chatroom
 - emojis
 - HTTP server that serves:
 	- user/message history

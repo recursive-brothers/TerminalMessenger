@@ -54,11 +54,14 @@ def accept_new_client(master_socket):
 	list_of_sockets.append(client_socket)
 	log_debug_info('accepted client', addr)
 
-def close_client_connection(client_socket, address):
-	log_debug_info('closing connection', address)
+def close_client_connection(socket_wrapper):
+	log_debug_info('closing connection', socket_wrapper.data.addr)
+	closed_client_name = socket_wrapper.data.name
+	client_socket = socket_wrapper.fileobj
 	client_manager.unregister(client_socket)
 	client_socket.close()
 	list_of_sockets.remove(client_socket)
+	send_to_all(f'{closed_client_name} has left the chat!')
 
 def send_to_all(recv_data):
 	log_debug_info('client sent ->', recv_data.decode())
@@ -81,11 +84,12 @@ def handle_client(socket_wrapper, events):
 		if recv_data:
 			if not socket_wrapper.data.name_accepted:
 				socket_wrapper.data.name = recv_data
+				socket_wrapper.data.name_accepted = True
 				send_to_all(f'{recv_data.decode()} has joined the chat!'.encode())
 			else:
 				send_to_all(recv_data)
 		else:
-			close_client_connection(client_socket, socket_wrapper.data.addr)
+			close_client_connection(socket_wrapper)
 
 def event_loop():
 	while True:

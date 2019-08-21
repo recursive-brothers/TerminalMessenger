@@ -81,7 +81,7 @@ def handle_client(socket_wrapper, events):
 		if recv_data:
 			if not socket_wrapper.data.name_accepted:
 				socket_wrapper.data.name = recv_data
-				send_to_all(f'{recv_data} has joined the chat!')
+				send_to_all(f'{recv_data} {'has joined the chat!'.encode()}')
 			else:
 				send_to_all(recv_data)
 		else:

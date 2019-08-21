@@ -6,6 +6,7 @@ import asyncio
 import curses
 import logging
 import datetime
+import json
 
 logging.basicConfig(filename='client.log',
                             filemode='a',
@@ -55,8 +56,8 @@ class ReceivedWindow:
             self.top_left.y = max(self.top_left.y + lines,0)
             self.refresh()
         
-    def paint_message(self, built_str):
-        message_height = int(2 + len(built_str) / (self.width - 2))
+    def paint_message(self, received_message):
+        message_height = int(2 + len(received_message) / (self.width - 2))
         lines_to_scroll = message_height + self.cursor.y - self.height
 
         if lines_to_scroll > 0:
@@ -64,15 +65,19 @@ class ReceivedWindow:
             self.scroll(lines_to_scroll)
             self.window.resize(self.height, self.width)
 
+        contents = json.loads(received_message)
+
         curr_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-        self.window.addstr(self.cursor.y, self.cursor.x, f'> {curr_time}')
+        self.window.addstr(self.cursor.y, self.cursor.x, f'{contents["name"]} {curr_time}')
         self.cursor.y += 1
 
+        message = received_message["message"]
+
         while True:
-            self.window.addstr(self.cursor.y, self.cursor.x, built_str[:self.width - 2])
+            self.window.addstr(self.cursor.y, self.cursor.x, message[:self.width - 2])
             self.cursor.y += 1
-            if len(built_str) > self.width - 2:
-                built_str = built_str[self.width-2:]
+            if len(message) > self.width - 2:
+                message = message[self.width-2:]
             else:
                 break
 
@@ -102,8 +107,6 @@ class InputWindow:
         if self.cursor.x == self.width - 1:
             self.cursor.y += 1
             self.cursor.x = 1
-
-
     
     def add_border(self):
         self.window.border('|', '|', '-', '-', '+', '+', '+', '+')

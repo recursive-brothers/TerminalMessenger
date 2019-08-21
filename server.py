@@ -8,8 +8,10 @@ import datetime
 import traceback
 import logging
 import datetime
+import json
 
 HOST = '0.0.0.0' 
+SERVER_NAME = "Terminal Messenger"
 
 parser = argparse.ArgumentParser()
 parser.add_argument('port')
@@ -23,16 +25,21 @@ logging.basicConfig(filename='server.log',
 list_of_sockets = []
 client_manager = selectors.DefaultSelector()
 
+
 class ClientInformation:
 	def __init__(self, addr):
 		self.addr = addr
 		self.name_accepted = False
 		self.name = None
 
+
 def log_debug_info(*args):
 	str_args = [str(arg) for arg in args]
 	str_args.append(str(datetime.datetime.now()))
 	logging.debug(' '.join(str_args))
+
+def serialize_message(name, message):
+	return json.dumps({"name": name, "message": message})
 
 def initialize_listening_socket(port):
 	lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -61,7 +68,8 @@ def close_client_connection(socket_wrapper):
 	client_manager.unregister(client_socket)
 	client_socket.close()
 	list_of_sockets.remove(client_socket)
-	send_to_all(f'{closed_client_name} has left the chat!'.encode())
+	
+	send_to_all(serialize_message(SERVER_NAME, f'{closed_client_name} has left the chat!').encode())
 
 def send_to_all(recv_data):
 	log_debug_info('client sent ->', recv_data.decode())
@@ -86,9 +94,10 @@ def handle_client(socket_wrapper, events):
 				name = recv_data.decode()
 				socket_wrapper.data.name = name
 				socket_wrapper.data.name_accepted = True
-				send_to_all(f'{name} has joined the chat!'.encode())
+
+				send_to_all(serialize_message(SERVER_NAME, f'{name} has joined the chat!').encode())
 			else:
-				send_to_all(recv_data)
+				send_to_all(serialize_message(socket_wrapper.data.name, recv_data.decode()).encode())
 		else:
 			close_client_connection(socket_wrapper)
 

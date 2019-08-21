@@ -56,8 +56,12 @@ class ReceivedWindow:
             self.top_left.y = max(self.top_left.y + lines,0)
             self.refresh()
         
-    def paint_message(self, received_message):
-        message_height = int(2 + len(received_message) / (self.width - 2))
+    def paint_message(self, json_message):
+        received_message = json.loads(json_message)
+        messager = received_message["name"]
+        message  = received_message["message"]
+
+        message_height = int(2 + len(message) / (self.width - 2))
         lines_to_scroll = message_height + self.cursor.y - self.height
 
         if lines_to_scroll > 0:
@@ -65,13 +69,10 @@ class ReceivedWindow:
             self.scroll(lines_to_scroll)
             self.window.resize(self.height, self.width)
 
-        contents = json.loads(received_message)
 
         curr_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-        self.window.addstr(self.cursor.y, self.cursor.x, f'{contents["name"]} {curr_time}')
+        self.window.addstr(self.cursor.y, self.cursor.x, f'{messager} {curr_time}')
         self.cursor.y += 1
-
-        message = received_message["message"]
 
         while True:
             self.window.addstr(self.cursor.y, self.cursor.x, message[:self.width - 2])

@@ -71,7 +71,7 @@ class ReceivedWindow:
 
 
         curr_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-        self.window.addstr(self.cursor.y, self.cursor.x, f'{messager} {curr_time}')
+        self.window.addstr(self.cursor.y, self.cursor.x, f'{messager}     {curr_time}')
         self.cursor.y += 1
 
         while True:

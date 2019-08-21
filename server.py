@@ -61,7 +61,7 @@ def close_client_connection(socket_wrapper):
 	client_manager.unregister(client_socket)
 	client_socket.close()
 	list_of_sockets.remove(client_socket)
-	send_to_all(f'{closed_client_name} has left the chat!')
+	send_to_all(f'{closed_client_name} has left the chat!'.encode())
 
 def send_to_all(recv_data):
 	log_debug_info('client sent ->', recv_data.decode())
@@ -83,9 +83,10 @@ def handle_client(socket_wrapper, events):
 			log_debug_info("OSERROR OCCURRED: ENDING LOGGING")
 		if recv_data:
 			if not socket_wrapper.data.name_accepted:
-				socket_wrapper.data.name = recv_data
+				name = recv_data.decode()
+				socket_wrapper.data.name = name
 				socket_wrapper.data.name_accepted = True
-				send_to_all(f'{recv_data.decode()} has joined the chat!'.encode())
+				send_to_all(f'{name} has joined the chat!'.encode())
 			else:
 				send_to_all(recv_data)
 		else:

@@ -16,7 +16,9 @@ logging.basicConfig(filename='client.log',
 
 parser = argparse.ArgumentParser()
 parser.add_argument('port')
+parser.add_argument('--name', '-n', default='Anonymous')
 args = parser.parse_args()
+
 
 
 HOST = '18.222.230.158'  # The server's hostname or IP address
@@ -200,6 +202,7 @@ async def background_tasks(s):
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.connect((HOST, PORT))
     s.setblocking(False)
+    s.sendall(args.name.encode())
     loop = asyncio.get_event_loop()
     loop.run_until_complete(background_tasks(s))
 

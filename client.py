@@ -186,7 +186,7 @@ async def get_messages(server_socket, received_window):
 async def background_tasks(s):
     global ADDRESS
     port = s.getsockname()[1]
-    ADDRESS = [requests.get('https://api.ipify.org?format=json').content.decode()['ip'],port]           
+    ADDRESS = [json.loads(requests.get('https://api.ipify.org?format=json').content.decode())['ip'],port]           
     stdscr = curses.initscr()
     curses.noecho()
     curses.cbreak()

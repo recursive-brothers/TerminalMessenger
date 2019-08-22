@@ -58,10 +58,13 @@ class ReceivedWindow:
             self.refresh()
         
     def paint_message(self, json_message):
+        curses.init_pair(1, -1, -1)
+        curses.init_pair(2, curses.COLOR_BLUE, -1)
         received_message = json.loads(json_message)
         messager = received_message["name"]
         message  = received_message["message"]
         color_num = 2 if received_message['address'] == list(ADDRESS) else 1
+        print(color_num)
 
         message_height = int(2 + len(message) / (self.width - 2))
         lines_to_scroll = message_height + self.cursor.y - self.height

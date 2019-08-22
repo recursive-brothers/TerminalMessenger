@@ -61,7 +61,7 @@ class ReceivedWindow:
         received_message = json.loads(json_message)
         messager = received_message["name"]
         message  = received_message["message"]
-        color_num = 2 if received_message['address'][0] == list(ADDRESS) else 1
+        color_num = 2 if received_message['address'] == list(ADDRESS) else 1
 
         message_height = int(2 + len(message) / (self.width - 2))
         lines_to_scroll = message_height + self.cursor.y - self.height

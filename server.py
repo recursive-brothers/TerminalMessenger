@@ -38,8 +38,8 @@ def log_debug_info(*args):
 	str_args.append(str(datetime.datetime.now()))
 	logging.debug(' '.join(str_args))
 
-def serialize_message(name, message):
-	return json.dumps({"name": name, "message": message})
+def serialize_message(address, name, message):
+	return json.dumps({"address": address, "name": name, "message": message})
 
 def initialize_listening_socket(port):
 	lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -69,7 +69,7 @@ def close_client_connection(socket_wrapper):
 	client_socket.close()
 	list_of_sockets.remove(client_socket)
 	
-	send_to_all(serialize_message(SERVER_NAME, f'{closed_client_name} has left the chat!').encode())
+	send_to_all(serialize_message(socket_wrapper.data.addr, SERVER_NAME, f'{closed_client_name} has left the chat!').encode())
 
 def send_to_all(recv_data):
 	log_debug_info('client sent ->', recv_data.decode())
@@ -95,9 +95,9 @@ def handle_client(socket_wrapper, events):
 				socket_wrapper.data.name = name
 				socket_wrapper.data.name_accepted = True
 
-				send_to_all(serialize_message(SERVER_NAME, f'{name} has joined the chat!').encode())
+				send_to_all(serialize_message(socket_wrapper.data.addr, SERVER_NAME, f'{name} has joined the chat!').encode())
 			else:
-				send_to_all(serialize_message(socket_wrapper.data.name, recv_data.decode()).encode())
+				send_to_all(serialize_message(socket_wrapper.data.addr, socket_wrapper.data.name, recv_data.decode()).encode())
 		else:
 			close_client_connection(socket_wrapper)
 

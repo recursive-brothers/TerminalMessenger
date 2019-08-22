@@ -24,6 +24,7 @@ args = parser.parse_args()
 
 HOST = '18.222.230.158'  # The server's hostname or IP address
 PORT = int(args.port) # The port used by the server
+ADDRESS = None
 
 
 class CursorPosition:
@@ -60,6 +61,7 @@ class ReceivedWindow:
         received_message = json.loads(json_message)
         messager = received_message["name"]
         message  = received_message["message"]
+        color_num = 2 if received_message['address'][0] == list(ADDRESS) else 1
 
         message_height = int(2 + len(message) / (self.width - 2))
         lines_to_scroll = message_height + self.cursor.y - self.height
@@ -71,11 +73,12 @@ class ReceivedWindow:
 
 
         curr_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-        self.window.addstr(self.cursor.y, self.cursor.x, f'{messager}     {curr_time}')
+
+        self.window.addstr(self.cursor.y, self.cursor.x, f'{messager}     {curr_time}', curses.color_pair(color_num))
         self.cursor.y += 1
 
         while True:
-            self.window.addstr(self.cursor.y, self.cursor.x, message[:self.width - 2])
+            self.window.addstr(self.cursor.y, self.cursor.x, message[:self.width - 2], curses.color_pair(color_num))
             self.cursor.y += 1
             if len(message) > self.width - 2:
                 message = message[self.width-2:]
@@ -83,7 +86,6 @@ class ReceivedWindow:
                 break
 
         self.refresh()
-
 
 class InputWindow:
     def __init__(self, num_rows, num_cols, startY, startX, cursorY, cursorX):
@@ -175,9 +177,15 @@ async def get_messages(server_socket, received_window):
 
           
 async def background_tasks(s):
+    ADDRESS = s.getsockname()
     stdscr = curses.initscr()
     curses.noecho()
     curses.cbreak()
+    curses.use_default_colors()
+    curses.start_color()
+    curses.init_pair(1, -1, -1)
+    curses.init_pair(2, curses.COLOR_BLUE, -1)
+    
     
     num_rows, num_cols = stdscr.getmaxyx()
     logging.debug(num_rows)
@@ -185,7 +193,7 @@ async def background_tasks(s):
     
     received_messages_rows = int(.85 * num_rows)
     sending_message_rows = num_rows - received_messages_rows
-    logging.debug("peeeee")
+    
     logging.debug(sending_message_rows)
     logging.debug(received_messages_rows)
 
@@ -210,8 +218,3 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     loop = asyncio.get_event_loop()
     loop.run_until_complete(background_tasks(s))
 
-"""
-Bug list:
-1. when you scroll up the top of input window border dissapears
-2. when you scroll down past the last message, it just pastes the last message over and over again
-"""

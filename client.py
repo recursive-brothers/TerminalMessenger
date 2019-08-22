@@ -7,6 +7,7 @@ import curses
 import logging
 import datetime
 import json
+import requests
 
 logging.basicConfig(filename='client.log',
                             filemode='a',
@@ -65,7 +66,7 @@ class ReceivedWindow:
         message  = received_message["message"]
         logging.debug(list(ADDRESS))
         logging.debug(received_message['address'])
-        color_num = 2 if received_message['address'] == list(ADDRESS) else 1
+        color_num = 2 if received_message['address'] == ADDRESS else 1
         logging.debug(color_num)
         
 
@@ -184,7 +185,8 @@ async def get_messages(server_socket, received_window):
           
 async def background_tasks(s):
     global ADDRESS
-    ADDRESS = s.getsockname()
+    port = s.getsockname()[1]
+    ADDRESS = [requests.get('https://api.ipify.org?format=json').content.decode()['ip'],port]           
     stdscr = curses.initscr()
     curses.noecho()
     curses.cbreak()

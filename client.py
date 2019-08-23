@@ -8,6 +8,7 @@ import logging
 import datetime
 import json
 import requests
+import traceback
 
 logging.basicConfig(filename='client.log',
                             filemode='a',
@@ -60,6 +61,7 @@ class ReceivedWindow:
         
     def paint_message(self, json_message):
         received_message = json.loads(json_message)
+        logging.debug(received_message)
         messager = received_message["name"]
         message  = received_message["message"]
         color_num = 2 if received_message['address'] == list(ADDRESS) else 1
@@ -212,11 +214,15 @@ async def background_tasks(s):
     await get_input
 
 
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    s.connect((HOST, PORT))
-    ADDRESS = eval(s.recv(1024).decode())
-    s.setblocking(False)
-    s.sendall(args.name.encode())
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(background_tasks(s))
+try:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+        ADDRESS = eval(s.recv(1024).decode())
+        s.setblocking(False)
+        s.sendall(args.name.encode())
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(background_tasks(s))
+except:
+	logging.debug(traceback.format_exc())
+
 

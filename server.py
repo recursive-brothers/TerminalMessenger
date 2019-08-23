@@ -96,7 +96,7 @@ def handle_client(socket_wrapper, events):
 				socket_wrapper.data.name = name
 				socket_wrapper.data.name_accepted = True
 
-				send_to_all(serialize_message(socket_wrapper.data.addr, SERVER_NAME, f'{name} has joined the chat!').encode())
+				send_to_all(serialize_message(0, SERVER_NAME, f'{name} has joined the chat!').encode())
 			else:
 				send_to_all(serialize_message(socket_wrapper.data.addr, socket_wrapper.data.name, recv_data.decode()).encode())
 		else:

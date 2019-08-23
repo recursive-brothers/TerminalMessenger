@@ -23,8 +23,8 @@ args = parser.parse_args()
 
 
 
-HOST = '18.222.230.158'  # The server's hostname or IP address
-PORT = int(args.port) # The port used by the server
+HOST =    '18.222.230.158'  # The server's hostname or IP address
+PORT =    int(args.port) # The port used by the server
 ADDRESS = None
 
 
@@ -51,22 +51,18 @@ class ReceivedWindow:
         self.refresh()
 
     def refresh(self):
-        self.window.refresh(self.top_left.y, self.top_left.x, 0, 0, self.display_height-1, self.display_width-1) #refresh display_height -1 to avoid overlap
+        self.window.refresh(self.top_left.y, self.top_left.x, 0, 0, self.display_height - 1, self.display_width - 1) #refresh display_height -1 to avoid overlap
 
     def scroll(self, lines):
         if lines < 0 or (self.top_left.y + self.display_height < self.height):
-            self.top_left.y = max(self.top_left.y + lines,0)
+            self.top_left.y = max(self.top_left.y + lines, 0)
             self.refresh()
         
     def paint_message(self, json_message):
-        curses.init_pair(1, -1, -1)
-        curses.init_pair(2, curses.COLOR_BLUE, -1)
         received_message = json.loads(json_message)
         messager = received_message["name"]
         message  = received_message["message"]
-        logging.debug(list(ADDRESS))
-        logging.debug(received_message['address'])
-        color_num = 2 if received_message['address'] == ADDRESS else 1
+        color_num = 2 if received_message['address'] == list(ADDRESS) else 1
         logging.debug(color_num)
         
 
@@ -184,9 +180,6 @@ async def get_messages(server_socket, received_window):
 
           
 async def background_tasks(s):
-    global ADDRESS
-    port = s.getsockname()[1]
-    ADDRESS = [json.loads(requests.get('https://api.ipify.org?format=json').content.decode())['ip'],port]           
     stdscr = curses.initscr()
     curses.noecho()
     curses.cbreak()
@@ -213,15 +206,15 @@ async def background_tasks(s):
     input_window = InputWindow(sending_message_rows,num_cols,received_messages_rows,0,1,1)
     logging.debug(input_window.window.getmaxyx())
 
-    
-
     get_input = asyncio.ensure_future(get_user_input(s, input_window, received_window, num_cols, received_messages_rows))
     get_output = asyncio.ensure_future(get_messages(s, received_window))
     await get_output
     await get_input
 
+
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.connect((HOST, PORT))
+    ADDRESS = eval(s.recv(1024).decode())
     s.setblocking(False)
     s.sendall(args.name.encode())
     loop = asyncio.get_event_loop()

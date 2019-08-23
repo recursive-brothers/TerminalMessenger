@@ -57,6 +57,7 @@ def setup():
 def accept_new_client(master_socket):
 	client_socket, addr = master_socket.accept()
 	client_socket.setblocking(False)
+	client_socket.send(str(addr).encode())
 	client_manager.register(client_socket, selectors.EVENT_READ | selectors.EVENT_WRITE, data = ClientInformation(addr))
 	list_of_sockets.append(client_socket)
 	log_debug_info('accepted client', addr)

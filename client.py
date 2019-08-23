@@ -7,7 +7,6 @@ import curses
 import logging
 import datetime
 import json
-import requests
 import traceback
 
 logging.basicConfig(filename='client.log',
@@ -85,7 +84,7 @@ class ReceivedWindow:
 
         curr_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
 
-        self.window.addstr(self.cursor.y, self.cursor.x, f'{messager}     {curr_time}', curses.color_pair(color_num))
+        self.window.addstr(self.cursor.y, self.cursor.x, f'{messager}     {curr_time}', curses.color_pair(color_num) | curses.A_STANDOUT)
         self.cursor.y += 1
 
         while True:

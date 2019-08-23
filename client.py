@@ -72,7 +72,7 @@ class ReceivedWindow:
         logging.debug(received_message)
         messager = received_message["name"]
         message  = received_message["message"]
-        color_num = pick_color(received_message['address'])
+        color_num = self.pick_color(received_message['address'])
 
         message_height = int(2 + len(message) / (self.width - 2))
         lines_to_scroll = message_height + self.cursor.y - self.height

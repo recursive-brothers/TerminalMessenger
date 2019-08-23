@@ -70,7 +70,7 @@ def close_client_connection(socket_wrapper):
 	client_socket.close()
 	list_of_sockets.remove(client_socket)
 	
-	send_to_all(serialize_message(socket_wrapper.data.addr, SERVER_NAME, f'{closed_client_name} has left the chat!').encode())
+	send_to_all(serialize_message(0, SERVER_NAME, f'{closed_client_name} has left the chat!').encode())
 
 def send_to_all(recv_data):
 	log_debug_info('client sent ->', recv_data.decode())

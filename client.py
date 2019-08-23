@@ -58,15 +58,21 @@ class ReceivedWindow:
         if lines < 0 or (self.top_left.y + self.display_height < self.height):
             self.top_left.y = max(self.top_left.y + lines, 0)
             self.refresh()
+
+    def pick_color(self, addr):
+        if addr == 0:
+            return 3
+        elif addr == list(ADDRESS):
+            return 2
+        else: 
+            return 4
         
     def paint_message(self, json_message):
         received_message = json.loads(json_message)
         logging.debug(received_message)
         messager = received_message["name"]
         message  = received_message["message"]
-        color_num = 2 if received_message['address'] == list(ADDRESS) else 1
-        logging.debug(color_num)
-        
+        color_num = pick_color(received_message['address'])
 
         message_height = int(2 + len(message) / (self.width - 2))
         lines_to_scroll = message_height + self.cursor.y - self.height
@@ -189,6 +195,8 @@ async def background_tasks(s):
     curses.use_default_colors()
     curses.init_pair(1, -1, -1)
     curses.init_pair(2, curses.COLOR_BLUE, -1)
+    curses.init_pair(3, curses.COLOR_GREEN, -1)
+    curses.init_pair(4, curses.COLOR_YELLOW, -1)
     
     
     num_rows, num_cols = stdscr.getmaxyx()

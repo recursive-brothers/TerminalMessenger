@@ -141,36 +141,44 @@ class InputWindow:
             else:
                 self.cursor.x = 1
 
+def handle_enter(server_socket, built_str, input_window):
+    if built_str:
+        input_window.clear_text()
+        server_socket.sendall("".join(built_str).encode())
+        built_str.clear()
+
+def handle_backspace(built_str, input_window):
+    if built_str:
+        built_str.pop()
+    input_window.backspace()
+
+def handle_scroll(input_window, received_window):
+    input_window.get_input()
+    scroll_direction = input_window.get_input()
+    if scroll_direction == 65:
+        received_window.scroll(-1)
+    elif scroll_direction == 66:
+        received_window.scroll(1)
+
+def handle_normal_ch(built_str, input_window):
+    built_str.append(chr(ch))
+    input_window.add_char(ch)
+
 
 async def get_user_input(server_socket, input_window, received_window, num_rows, num_cols):
     built_str = []
-
     while True:
         ch = input_window.get_input()
         if ch != curses.ERR:
             if ch == ord('\n'):
-                if built_str:
-                    input_window.clear_text()
-                    server_socket.sendall("".join(built_str).encode())
-                    built_str.clear()
-
+                handle_enter(server_socket, built_str, input_window)
             elif ch == 127:
-                if built_str:
-                    built_str.pop()
-                input_window.backspace()
-
+                handle_backspace(built_str, input_window)
             elif ch == 27:
-                input_window.get_input()
-                scroll_direction = input_window.get_input()
-                if scroll_direction == 65:
-                    received_window.scroll(-1)
-                elif scroll_direction == 66:
-                    received_window.scroll(1)
-
+                handle_scroll(input_window, received_window)
             else:
-                built_str.append(chr(ch))
-                input_window.add_char(ch)
-
+                handle_normal_ch(built_str, input_window)
+                
         await asyncio.sleep(.001)
 
 async def get_messages(server_socket, received_window):

@@ -229,7 +229,8 @@ def cleanup_curses():
 try:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((HOST, PORT))
-        ADDRESS = eval(s.recv(1024).decode())
+        ip_and_port = json.loads(s.recv(1024).decode())
+        ADDRESS = [ip_and_port['address'], ip_and_port['port']]
         s.setblocking(False)
         s.sendall(args.name.encode())
         loop = asyncio.get_event_loop()

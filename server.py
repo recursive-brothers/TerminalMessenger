@@ -38,8 +38,8 @@ def log_debug_info(*args):
 	str_args.append(str(datetime.datetime.now()))
 	logging.debug(' '.join(str_args))
 
-def serialize_message(address, name, message):
-	return json.dumps({"address": address, "name": name, "message": message})
+def serialize_message(**kwargs):
+	return json.dumps(kwargs)
 
 def initialize_listening_socket(port):
 	lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -57,7 +57,7 @@ def setup():
 def accept_new_client(master_socket):
 	client_socket, addr = master_socket.accept()
 	client_socket.setblocking(False)
-	client_socket.send(str(addr).encode())
+	client_socket.send(serialize_message(address=addr[0],port=addr[1]).encode())
 	client_manager.register(client_socket, selectors.EVENT_READ | selectors.EVENT_WRITE, data = ClientInformation(addr))
 	list_of_sockets.append(client_socket)
 	log_debug_info('accepted client', addr)
@@ -70,7 +70,7 @@ def close_client_connection(socket_wrapper):
 	client_socket.close()
 	list_of_sockets.remove(client_socket)
 	
-	send_to_all(serialize_message(0, SERVER_NAME, f'{closed_client_name} has left the chat!').encode())
+	send_to_all(serialize_message(address=0, name=SERVER_NAME, message=f'{closed_client_name} has left the chat!').encode())
 
 def send_to_all(recv_data):
 	log_debug_info('client sent ->', recv_data.decode())
@@ -96,9 +96,9 @@ def handle_client(socket_wrapper, events):
 				socket_wrapper.data.name = name
 				socket_wrapper.data.name_accepted = True
 
-				send_to_all(serialize_message(0, SERVER_NAME, f'{name} has joined the chat!').encode())
+				send_to_all(serialize_message(address=0, name=SERVER_NAME, message=f'{name} has joined the chat!').encode())
 			else:
-				send_to_all(serialize_message(socket_wrapper.data.addr, socket_wrapper.data.name, recv_data.decode()).encode())
+				send_to_all(serialize_message(address=socket_wrapper.data.addr, name=socket_wrapper.data.name, message=recv_data.decode()).encode())
 		else:
 			close_client_connection(socket_wrapper)
 

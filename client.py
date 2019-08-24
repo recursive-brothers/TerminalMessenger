@@ -220,6 +220,11 @@ async def background_tasks(s):
     await get_output
     await get_input
 
+def cleanup_curses():
+    curses.nocbreak()
+    curses.echo()
+    curses.endwin()
+
 
 try:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -230,6 +235,6 @@ try:
         loop = asyncio.get_event_loop()
         loop.run_until_complete(background_tasks(s))
 except:
-	logging.debug(traceback.format_exc())
-
-
+    logging.debug(traceback.format_exc())
+finally:
+    cleanup_curses()

@@ -41,19 +41,18 @@ def log_debug_info(*args):
 def serialize_message(**kwargs):
 	return json.dumps(kwargs)
 
-def initialize_listening_socket(port):
-	lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	lsock.bind((HOST, port))
-	lsock.listen()
-	lsock.setblocking(False)
-	client_manager.register(lsock, selectors.EVENT_READ, data=None)
+def initialize_master_socket(port):
+	master_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	master_socket.bind((HOST, port))
+	master_socket.listen()
+	master_socket.setblocking(False)
+	client_manager.register(master_socket, selectors.EVENT_READ, data=None)
 
 def setup():
 	port = int(args.port)
-	initialize_listening_socket(port)
+	initialize_master_socket(port)
 	log_debug_info('listening on', (HOST, port))
 
-# NEED TO RENAME MASTER SOCKET
 def accept_new_client(master_socket):
 	client_socket, addr = master_socket.accept()
 	client_socket.setblocking(False)

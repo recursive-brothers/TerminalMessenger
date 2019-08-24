@@ -232,8 +232,6 @@ def handshake(server_socket):
     server_socket.sendall(args.name.encode())
     server_socket.setblocking(False)
 
-
-
 try:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((HOST, PORT))

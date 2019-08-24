@@ -61,7 +61,7 @@ class ReceivedWindow:
     def pick_color(self, addr):
         if addr == 0:
             return 3
-        elif addr == list(ADDRESS):
+        elif addr == ADDRESS:
             return 2
         else: 
             return 4

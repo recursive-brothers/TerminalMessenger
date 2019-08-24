@@ -68,7 +68,6 @@ def close_client_connection(socket_wrapper):
 	client_manager.unregister(client_socket)
 	client_socket.close()
 	list_of_sockets.remove(client_socket)
-	
 	send_to_all(serialize_message(address=0, name=SERVER_NAME, message=f'{closed_client_name} has left the chat!').encode())
 
 def send_to_all(recv_data):
@@ -124,3 +123,7 @@ except Exception as e:
 	log_debug_info(traceback.format_exc())
 
 log_debug_info('----------------------ENDING SESSION-------------------------')
+
+"""
+Figure out how to clean up handle_client
+"""

@@ -73,8 +73,8 @@ class ReceivedWindow:
         message  = received_message["message"]
         color_num = self.pick_color(received_message['address'])
 
-        message_height = int(2 + len(message) / (self.width - 2))
-        lines_to_scroll = message_height + self.cursor.y - self.height
+        message_line_height = int(2 + len(message) / (self.width - 2))
+        lines_to_scroll = message_line_height + self.cursor.y - self.height
 
         if lines_to_scroll > 0:
             self.height += lines_to_scroll
@@ -179,6 +179,7 @@ async def get_messages(server_socket, received_window):
         try:
             received_message = server_socket.recv(1024).decode()
         except:
+            logging.debug(traceback.format_exc())
             pass
         if received_message:
             received_window.paint_message(received_message)
@@ -186,7 +187,23 @@ async def get_messages(server_socket, received_window):
         await asyncio.sleep(.001)
 
           
-async def background_tasks(s):
+async def main(s):
+    stdscr = setup_curses()
+
+    num_rows, num_cols = stdscr.getmaxyx()
+    received_messages_rows = int(.85 * num_rows)
+    sending_message_rows = num_rows - received_messages_rows
+    
+    # might want to put these numbers into constants up top or somewhere so that it's easy to change and makes some goddamn sense
+    received_window = ReceivedWindow(received_messages_rows, num_cols, 0, 1)
+    input_window = InputWindow(sending_message_rows,num_cols,received_messages_rows,0,1,1)
+    
+    get_input = asyncio.ensure_future(get_user_input(s, input_window, received_window, num_cols, received_messages_rows))
+    get_output = asyncio.ensure_future(get_messages(s, received_window))
+    await get_output
+    await get_input
+
+def setup_curses():
     stdscr = curses.initscr()
     curses.noecho()
     curses.cbreak()
@@ -196,29 +213,8 @@ async def background_tasks(s):
     curses.init_pair(2, curses.COLOR_BLUE, -1)
     curses.init_pair(3, curses.COLOR_GREEN, -1)
     curses.init_pair(4, curses.COLOR_YELLOW, -1)
-    
-    
-    num_rows, num_cols = stdscr.getmaxyx()
-    logging.debug(num_rows)
-    logging.debug(num_cols)
-    
-    received_messages_rows = int(.85 * num_rows)
-    sending_message_rows = num_rows - received_messages_rows
-    
-    logging.debug(sending_message_rows)
-    logging.debug(received_messages_rows)
+    return stdscr
 
-    # might want to put these numbers into constants up top or somewhere so that it's easy to change and makes some goddamn sense
-    received_window = ReceivedWindow(received_messages_rows, num_cols, 0, 1)
-    logging.debug(received_window.window.getmaxyx())
-
-    input_window = InputWindow(sending_message_rows,num_cols,received_messages_rows,0,1,1)
-    logging.debug(input_window.window.getmaxyx())
-
-    get_input = asyncio.ensure_future(get_user_input(s, input_window, received_window, num_cols, received_messages_rows))
-    get_output = asyncio.ensure_future(get_messages(s, received_window))
-    await get_output
-    await get_input
 
 def cleanup_curses():
     curses.nocbreak()
@@ -232,13 +228,23 @@ def handshake(server_socket):
     server_socket.sendall(args.name.encode())
     server_socket.setblocking(False)
 
-try:
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect((HOST, PORT))
-        handshake(s)
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(background_tasks(s))
-except:
-    logging.debug(traceback.format_exc())
-finally:
-    cleanup_curses()
+
+if __name__ == "__main__":
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.connect((HOST, PORT))
+            handshake(s)
+            loop = asyncio.get_event_loop()
+            loop.run_until_complete(main(s))
+    except:
+        logging.debug(traceback.format_exc())
+    finally:
+        cleanup_curses()
+
+
+"""
+mitch wants a string builder class....
+break paint_message into smaller peices (maybe)
+handle json parsing outside of received (maybe something that is called in get_messages)
+
+"""

@@ -126,4 +126,10 @@ log_debug_info('----------------------ENDING SESSION-------------------------')
 
 """
 Figure out how to clean up handle_client
+
+ERROR_LIST:
+1. connection reset by peer when mitch's computer falls asleep (the server crashes), so this error isn't even handled
+2. non utf-8 characters being sent (not handled, can handle this easily by catching it)
+3. really really weird random unicorn error with json decodes error.
+4. Port is already occupied when we try to start server (prev process on port not killed?)
 """

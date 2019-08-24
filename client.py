@@ -243,8 +243,8 @@ if __name__ == "__main__":
 
 
 """
-mitch wants a string builder class....
-break paint_message into smaller peices (maybe)
-handle json parsing outside of received (maybe something that is called in get_messages)
-
+1. mitch wants a string builder class....
+2. break paint_message into smaller peices (maybe)
+3. handle json parsing outside of received (maybe something that is called in get_messages)
+4. add constants for the math stuff
 """

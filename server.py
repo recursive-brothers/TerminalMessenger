@@ -76,6 +76,14 @@ def send_to_all(recv_data):
 	for socket in list_of_sockets:
 		socket.send(recv_data)
 
+def os_error_logging(socket_wrapper):
+	log_debug_info("OSERROR OCCURRED: BEGIN LOGGING")
+	log_debug_info('address is', socket_wrapper.data.addr)
+	log_debug_info('count of clients', len(list_of_sockets))
+	log_debug_info(traceback.format_exc())
+	log_debug_info("OSERROR OCCURRED: ENDING LOGGING")
+
+
 def handle_client(socket_wrapper, events):
 	recv_data = None 
 	client_socket = socket_wrapper.fileobj
@@ -84,11 +92,8 @@ def handle_client(socket_wrapper, events):
 			recv_data = client_socket.recv(1024)
 		except ConnectionResetError:
 			recv_data = None
-			log_debug_info("OSERROR OCCURRED: BEGIN LOGGING")
-			log_debug_info('address is', socket_wrapper.data.addr)
-			log_debug_info('count of clients', len(list_of_sockets))
-			log_debug_info(traceback.format_exc())
-			log_debug_info("OSERROR OCCURRED: ENDING LOGGING")
+			os_error_logging(socket_wrapper)
+
 		if recv_data:
 			if not socket_wrapper.data.handshake_complete:
 				name = recv_data.decode()

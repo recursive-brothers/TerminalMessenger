@@ -14,6 +14,7 @@ core features:
 - add names to messages
 - accounts (data persistance)
 - message history
+- multi threaded server (for things like handling client handshake in own function, handling even more messages/chatrooms,etc)
 
 
 bonus features:

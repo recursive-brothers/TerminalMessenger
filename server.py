@@ -29,7 +29,7 @@ client_manager = selectors.DefaultSelector()
 class ClientInformation:
 	def __init__(self, addr):
 		self.addr = addr
-		self.name_accepted = False
+		self.handshake_complete = False
 		self.name = None
 
 
@@ -90,10 +90,10 @@ def handle_client(socket_wrapper, events):
 			log_debug_info(traceback.format_exc())
 			log_debug_info("OSERROR OCCURRED: ENDING LOGGING")
 		if recv_data:
-			if not socket_wrapper.data.name_accepted:
+			if not socket_wrapper.data.handshake_complete:
 				name = recv_data.decode()
 				socket_wrapper.data.name = name
-				socket_wrapper.data.name_accepted = True
+				socket_wrapper.data.handshake_complete = True
 
 				send_to_all(serialize_message(address=0, name=SERVER_NAME, message=f'{name} has joined the chat!').encode())
 			else:

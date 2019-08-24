@@ -225,14 +225,19 @@ def cleanup_curses():
     curses.echo()
     curses.endwin()
 
+def handshake(server_socket):
+    global ADDRESS
+    ip_and_port = json.loads(server_socket.recv(1024).decode())
+    ADDRESS = [ip_and_port['address'], ip_and_port['port']]
+    server_socket.sendall(args.name.encode())
+    server_socket.setblocking(False)
+
+
 
 try:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((HOST, PORT))
-        ip_and_port = json.loads(s.recv(1024).decode())
-        ADDRESS = [ip_and_port['address'], ip_and_port['port']]
-        s.setblocking(False)
-        s.sendall(args.name.encode())
+        handshake(s)
         loop = asyncio.get_event_loop()
         loop.run_until_complete(background_tasks(s))
 except:

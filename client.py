@@ -27,6 +27,27 @@ HOST =    '18.222.230.158'  # The server's hostname or IP address
 PORT =    int(args.port) # The port used by the server
 ADDRESS = None
 
+class StringBuilder:
+    def __init__(self):
+        self.ch_list = []
+
+    def _append(self, seq):
+        self.ch_list.append(seq)
+    
+    def delete(self, num):
+        self.ch_list = self.ch_list[:num * -1]
+
+    def build(self):
+        built_str = ''.join(self.ch_list)
+        self.ch_list.clear()
+        return built_str
+
+    def __iadd__(self, seq):
+        self._append(seq)
+
+    def __bool__(self):
+        return bool(self.ch_list)
+
 
 class CursorPosition:
     def __init__(self,startY,startX):
@@ -141,15 +162,12 @@ class InputWindow:
             else:
                 self.cursor.x = 1
 
-def handle_enter(server_socket, built_str, input_window):
-    if built_str:
-        input_window.clear_text()
-        server_socket.sendall("".join(built_str).encode())
-        built_str.clear()
+def handle_enter(server_socket, accumulated_input, input_window):
+    if accumulated_input:
+        server_socket.sendall(accumulated_input.build())
 
-def handle_backspace(built_str, input_window):
-    if built_str:
-        built_str.pop()
+def handle_backspace(accumulated_input, input_window):
+    accumulated_input.delete(1)
     input_window.backspace()
 
 def handle_scroll(input_window, received_window):
@@ -160,24 +178,25 @@ def handle_scroll(input_window, received_window):
     elif scroll_direction == 66:
         received_window.scroll(1)
 
-def handle_normal_ch(ch, built_str, input_window):
-    built_str.append(chr(ch))
+# this name is bad
+def handle_normal_ch(ch, accumulated_input, input_window):
+    accumulated_input += chr(ch)
     input_window.add_char(ch)
 
 
-async def get_user_input(server_socket, input_window, received_window, num_rows, num_cols):
-    built_str = []
+async def get_accumulated_input(server_socket, input_window, received_window, num_rows, num_cols):
+    accumulated_input = StringBuilder()
     while True:
         ch = input_window.get_input()
         if ch != curses.ERR:
             if ch == ord('\n'):
-                handle_enter(server_socket, built_str, input_window)
+                handle_enter(server_socket, accumulated_input, input_window)
             elif ch == 127:
-                handle_backspace(built_str, input_window)
+                handle_backspace(accumulated_input, input_window)
             elif ch == 27:
                 handle_scroll(input_window, received_window)
             else:
-                handle_normal_ch(ch, built_str, input_window)
+                handle_normal_ch(ch, accumulated_input, input_window)
                 
         await asyncio.sleep(.001)
 
@@ -187,7 +206,6 @@ async def get_messages(server_socket, received_window):
         try:
             received_message = server_socket.recv(1024).decode()
         except:
-            logging.debug(traceback.format_exc())
             pass
         if received_message:
             received_window.paint_message(received_message)
@@ -206,7 +224,7 @@ async def main(s):
     received_window = ReceivedWindow(received_messages_rows, num_cols, 0, 1)
     input_window = InputWindow(sending_message_rows,num_cols,received_messages_rows,0,1,1)
     
-    get_input = asyncio.ensure_future(get_user_input(s, input_window, received_window, num_cols, received_messages_rows))
+    get_input = asyncio.ensure_future(get_accumulated_input(s, input_window, received_window, num_cols, received_messages_rows))
     get_output = asyncio.ensure_future(get_messages(s, received_window))
     await get_output
     await get_input

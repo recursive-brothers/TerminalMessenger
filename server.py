@@ -93,17 +93,16 @@ def handle_client(socket_wrapper, events):
 			recv_data = None
 			os_error_logging(socket_wrapper)
 
-		if recv_data:
-			if not socket_wrapper.data.handshake_complete:
-				name = recv_data.decode()
-				socket_wrapper.data.name = name
-				socket_wrapper.data.handshake_complete = True
-
-				send_to_all(serialize_message(address=0, name=SERVER_NAME, message=f'{name} has joined the chat!').encode())
-			else:
-				send_to_all(serialize_message(address=socket_wrapper.data.addr, name=socket_wrapper.data.name, message=recv_data.decode()).encode())
-		else:
+		if not recv_data:
 			close_client_connection(socket_wrapper)
+		elif not socket_wrapper.data.handshake_complete:
+			name = recv_data.decode()
+			socket_wrapper.data.name = name
+			socket_wrapper.data.handshake_complete = True
+
+			send_to_all(serialize_message(address=0, name=SERVER_NAME, message=f'{name} has joined the chat!').encode())
+		else:
+			send_to_all(serialize_message(address=socket_wrapper.data.addr, name=socket_wrapper.data.name, message=recv_data.decode()).encode())
 
 def event_loop():
 	while True:
@@ -125,11 +124,15 @@ except Exception as e:
 log_debug_info('----------------------ENDING SESSION-------------------------')
 
 """
-Figure out how to clean up handle_client
-
-ERROR_LIST:
+ERROR LIST:
 1. connection reset by peer when mitch's computer falls asleep (the server crashes), so this error isn't even handled
 2. non utf-8 characters being sent (not handled, can handle this easily by catching it)
 3. really really weird random unicorn error with json decodes error.
 4. Port is already occupied when we try to start server (prev process on port not killed?)
+"""
+
+"""
+1. move client content into different files
+2. (MAYBE) track down (some) of the errors in the above list
+3. add documentation for received window and client window
 """

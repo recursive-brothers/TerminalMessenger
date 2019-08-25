@@ -164,7 +164,8 @@ class InputWindow:
 
 def handle_enter(server_socket, accumulated_input, input_window):
     if accumulated_input:
-        server_socket.sendall(accumulated_input.build())
+        input_window.clear_text()
+        server_socket.sendall(accumulated_input.build().decode())
 
 def handle_backspace(accumulated_input, input_window):
     accumulated_input.delete(1)

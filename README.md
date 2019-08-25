@@ -16,7 +16,7 @@ Chat server and client written with Python using sockets library :)
 	- [ ] better performance and management for multiple messages/chatrooms
 
 ## Bonus Features ##
-#### DevOps ####
+### DevOps ###
 - [ ] packaging it with pypy
 - [ ] dockerize it 
 - [ ] have different subdomains for the different services of our application (e.g. http server)
@@ -24,7 +24,7 @@ Chat server and client written with Python using sockets library :)
 - [ ] horizontal scaling with a load balancer
 - [ ] add a domain name
 - [ ] comply with ICMP protocol to allow for 'ping'
-#### Terminal Client ####
+### Terminal Client ###
 - [x] formatting with ncurses
 - [ ] adding useful text commands (/join to join a chatroom, /l to list public chatrooms)
 - [ ] image rendering 
@@ -40,20 +40,21 @@ Chat server and client written with Python using sockets library :)
 - [x] pretty colors :)
 - [x] add messages for users that connected/disconnected to the chatroom
 - [ ] speech recognition
-#### Terminal Server ####
+- [ ] on sleep/disconnection, display 'disconnected' and try to reconnect on message send
+### Terminal Server ###
 - [ ] admin privileges to starters of group messages/chatrooms, etc.
 - [ ] hidden file with username and password saved to not type in username and password every time (almost like a cookie)
-#### Security ####
+### Security ###
 - [ ] encryption
 - [ ] security (blocking ips, etc)
 - [ ] prevent injection/other exploits to server
-#### HTTP Server ####
+### HTTP Server ###
 - [ ] **TEMP** static HTML page that we serve (with web server) about the project (until HTTP server server are established)
 - [ ] user/message history
 - [ ] Data analytics (possibly integrated with the client by default?)
 - [ ] Full-text search
 - [ ] and more
-#### WebSockets Client ####
+### WebSockets Client ###
 - [ ] gain the ability to send messages from terminal to browser client and vice versa
 - [ ] create a desktop app to accompany the browser version of the client
 - [ ] allow the ability to send images (convert images to ascii art for the terminal?)

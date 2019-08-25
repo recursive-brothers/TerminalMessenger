@@ -9,6 +9,7 @@ import datetime
 import json
 import traceback
 from enum import Enum
+import re
 
 logging.basicConfig(filename='client.log',
                             filemode='a',
@@ -230,20 +231,21 @@ def format_metadata(received_message):
 
 async def receive_server_messages(server_socket, received_window):
     while True:
-        json_message = None
+        raw_messages = None
         try:
-            json_message = server_socket.recv(BUFFER_SIZE).decode()
+            raw_messages = server_socket.recv(BUFFER_SIZE).decode()
         except:
             pass
-        if json_message:
-            logging.debug(json_message)
-            received_message = json.loads(json_message)
-
-            message  = received_message["message"]
-            color_num = determine_sender(received_message['address'])
-            metadata = format_metadata(received_message)
-            received_window.paint_message(metadata, message, color_num)
-
+        if raw_messages:
+            message_format = r'{.*?}'
+            json_messages = re.findall(message_format, raw_messages)
+            for json_msg in json_messages:
+                logging.debug(json_msg)
+                received_message = json.loads(json_msg)
+                message  = received_message["message"]
+                color_num = determine_sender(received_message['address'])
+                metadata = format_metadata(received_message)
+                received_window.paint_message(metadata, message, color_num)
 
         await asyncio.sleep(SLEEP_TIME)
 

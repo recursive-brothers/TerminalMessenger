@@ -8,6 +8,7 @@ import logging
 import datetime
 import json
 import traceback
+from enum import Enum
 
 logging.basicConfig(filename='client.log',
                             filemode='a',
@@ -26,6 +27,13 @@ args = parser.parse_args()
 HOST =    '18.222.230.158'  # The server's hostname or IP address
 PORT =    int(args.port) # The port used by the server
 ADDRESS = None
+
+class SENDER(Enum):
+    SELF     = 1
+    TERMINAL = 2
+    OTHER    = 3
+
+
 
 class StringBuilder:
     def __init__(self):
@@ -79,15 +87,47 @@ class ReceivedWindow:
             self.top_left.y = max(self.top_left.y + lines, 0)
             self.refresh()
 
-    def pick_color(self, addr):
-        if addr == 0:
-            return 3
-        elif addr == ADDRESS:
-            return 2
-        else: 
-            return 4
+    def paint_message(self, metadata, message, color):
+        # we have a one character margin on both sides of the received window
+        width = self.width - 2
+
+        # calculation works as follows:
+        # height of metadata is ceiling of metadata length over width of screen (1 + floor(len(metadata) / width))
+        # height of message is ceiling of message length over width of screen (1 + floor(len(message) / width))
+        # we cannot add the length of metadata and message and divide by width:
+        #     if length of metadata and message are both slightly longer than width, then adding would give
+        #     a height of 3 lines, when in reality it should be 4.
+        message_line_height = 2 + int(len(metadata) / width) + int(len(message) / width)
+        lines_to_scroll = message_line_height + self.cursor.y - self.height
+
+        if lines_to_scroll > 0:
+            self.height += lines_to_scroll
+            self.scroll(lines_to_scroll)
+            self.window.resize(self.height, self.width)
+
+        # while message:
+        #     self.window.addstr(self.cursor.y, self.cursor.x, message[:width], curses.color_pair(color))
+        #     self.cursor.y += 1
+        #     message = message[width:]
+
+        # so we don't support metadata longer than 1 line?
+        self.window.addstr(self.cursor.y, self.cursor.x, metadata, curses.color_pair(color) | curses.A_STANDOUT)
+        self.cursor.y += 1
+
+        # can abstract this into one function
+        while True:
+            self.window.addstr(self.cursor.y, self.cursor.x, message[:width], curses.color_pair(color))
+            self.cursor.y += 1
+            if len(message) > width:
+                message = message[width:]
+            else:
+                break
+
+        self.refresh()
+
+
         
-    def paint_message(self, json_message):
+    def paint_message_deprecated(self, message):
         received_message = json.loads(json_message)
         logging.debug(received_message)
         messager = received_message["name"]
@@ -201,15 +241,33 @@ async def get_accumulated_input(server_socket, input_window, received_window, nu
                 
         await asyncio.sleep(.001)
 
+def determine_sender(addr):
+    sender = None
+    if addr == ADDRESS:
+        sender = SENDER.SELF
+    elif addr == 0:
+        sender = SENDER.TERMINAL
+    else: 
+        sender = SENDER.OTHER
+    return sender.value
+
 async def get_messages(server_socket, received_window):
     while True:
-        received_message = None
+        json_message = None
         try:
-            received_message = server_socket.recv(1024).decode()
+            json_message = server_socket.recv(1024).decode()
         except:
             pass
-        if received_message:
-            received_window.paint_message(received_message)
+        if json_message:
+            received_message = json.loads(json_message)
+            logging.debug(received_message)
+            messager = received_message["name"]
+            message  = received_message["message"]
+            color_num = determine_sender(received_message['address'])
+            curr_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+            metadata = f'{messager}     {curr_time}'
+            received_window.paint_message(metadata, message, color_num)
+
 
         await asyncio.sleep(.001)
 
@@ -236,10 +294,9 @@ def setup_curses():
     curses.cbreak()
     curses.start_color()
     curses.use_default_colors()
-    curses.init_pair(1, -1, -1)
-    curses.init_pair(2, curses.COLOR_BLUE, -1)
-    curses.init_pair(3, curses.COLOR_GREEN, -1)
-    curses.init_pair(4, curses.COLOR_YELLOW, -1)
+    curses.init_pair(SENDER.SELF.value, curses.COLOR_BLUE, -1)
+    curses.init_pair(SENDER.TERMINAL.value, curses.COLOR_GREEN, -1)
+    curses.init_pair(SENDER.OTHER.value, curses.COLOR_YELLOW, -1)
     return stdscr
 
 
@@ -270,7 +327,6 @@ if __name__ == "__main__":
 
 
 """
-1. mitch wants a string builder class....
 2. break paint_message into smaller peices (maybe)
 3. handle json parsing outside of received (maybe something that is called in get_messages)
 4. add constants for the math stuff

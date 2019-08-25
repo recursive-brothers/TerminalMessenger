@@ -47,3 +47,5 @@ bonus features:
 	- split terminal for multiple chatrooms
 	- autocomplete for text commands
 	- sidebar with options for interacting with multiple chatrooms
+- hidden file with username and password saved to not type in username and password every time
+- speech recognition

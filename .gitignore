@@ -1,1 +1,2 @@
 *.log
+client_modules/__pycache__/*

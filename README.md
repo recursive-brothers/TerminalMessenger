@@ -3,7 +3,7 @@
 Chat server and client written with Python using sockets library :)
 
 ## Core Features ##
-- [ ] message one on one with another client
+- [] message one on one with another client
 - [ ] group messaging
 	- [ ] public forums anyone can read and write messages to
 	- [ ] private chatrooms which users add other users to
@@ -56,5 +56,3 @@ Chat server and client written with Python using sockets library :)
 	- [ ] allow the ability to send images (convert images to ascii art for the terminal?)
 	- [ ] integrate all other terminal client features
 - [ ] static HTML page that we serve (with web server) about the project (until HTTP server server are established)
-
-:heavy_check_mark:

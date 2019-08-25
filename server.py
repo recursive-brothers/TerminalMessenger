@@ -127,7 +127,12 @@ log_debug_info('----------------------ENDING SESSION-------------------------')
 ERROR LIST:
 1. connection reset by peer when mitch's computer falls asleep (the server crashes), so this error isn't even handled
 2. non utf-8 characters being sent (not handled, can handle this easily by catching it)
-3. really really weird random unicorn error with json decodes error.
+3. really really weird random unicorn error with json decodes error. --> CAUSE: multi
+- CAUSE:
+- server sends messages non-stop with no discretion
+- the client is too slow to read each message one at a time, because it's awaiting to allow for asyncIO to do its thing
+- if multiple messages appear in the buffer for the client, then json.loads fails because there are multiple json entities sitting there that can only be parsed seperately
+- solution: preprocess the buffer assuming that it could potentially be a list of messages rather than always being one
 4. Port is already occupied when we try to start server (prev process on port not killed?)
 """
 

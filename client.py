@@ -22,27 +22,6 @@ parser.add_argument('port')
 parser.add_argument('--name', '-n', default='Anonymous')
 args = parser.parse_args()
 
-HOST    = '18.222.230.158'  # The server's hostname or IP address
-PORT    = int(args.port) # The port used by the server
-ADDRESS = None
-
-BUFFER_SIZE = 1024
-SLEEP_TIME  = .001
-
-ENTER       = 10
-BACKSPACE   = 127
-SCROLL      = 27
-SCROLL_UP   = 65
-SCROLL_DOWN = 66
-
-RECEIVED_WINDOW_RATIO = .85
-
-class SENDER(Enum):
-    SELF     = 1
-    TERMINAL = 2
-    OTHER    = 3
-
-
 class StringBuilder:
     def __init__(self):
         self.ch_list = []
@@ -124,89 +103,6 @@ class ReceivedWindow:
         self._paint_str(message, curses.color_pair(color))
 
         self.refresh()
-
-class InputWindow:
-    def __init__(self, num_rows, num_cols, startY, startX, cursorY, cursorX):
-        self.height = num_rows
-        self.width = num_cols
-        self.window = curses.newwin(num_rows, num_cols,startY,startX)
-        self.cursor = CursorPosition(cursorY, cursorX)
-        self.window.nodelay(True)
-        self.add_border()
-        self.window.refresh()
-    
-    def clear_text(self):
-        self.window.erase()
-        self.window.border('|', '|', '-', '-', '+', '+', '+', '+')
-        self.window.refresh()
-        self.cursor.x = self.cursor.y = 1
-
-    def add_char(self, ch):
-        self.window.addstr(self.cursor.y,self.cursor.x,chr(ch))
-        self.cursor.x += 1 
-
-        if self.cursor.x == self.width - 1:
-            self.cursor.y += 1
-            self.cursor.x = 1
-    
-    def add_border(self):
-        self.window.border('|', '|', '-', '-', '+', '+', '+', '+')
-    
-    def get_input(self):
-        return self.window.getch(self.cursor.y, self.cursor.x)
-    
-    def backspace(self):
-        if self.cursor.x <= 1 and self.cursor.y <=1:
-            return
-        self.window.addstr(self.cursor.y, self.cursor.x - 1, " ")
-        self.window.refresh()
-        self.cursor.x -= 1
-    
-        if self.cursor.x == 0:
-            if self.cursor.y != 1:
-                self.cursor.y -= 1
-                self.cursor.x = self.width - 2
-            else:
-                self.cursor.x = 1
-
-def handle_enter(server_socket, accumulated_input, input_window):
-    if accumulated_input:
-        input_window.clear_text()
-        server_socket.sendall(accumulated_input.build().encode())
-
-def handle_backspace(accumulated_input, input_window):
-    accumulated_input.delete(1)
-    input_window.backspace()
-
-def handle_scroll(input_window, received_window):
-    input_window.get_input()
-    scroll_direction = input_window.get_input()
-    if scroll_direction == SCROLL_UP:
-        received_window.scroll(-1)
-    elif scroll_direction == SCROLL_DOWN:
-        received_window.scroll(1)
-
-# this name is bad
-def handle_normal_ch(ch, accumulated_input, input_window):
-    accumulated_input += chr(ch)
-    input_window.add_char(ch)
-
-
-async def get_user_input(server_socket, input_window, received_window, num_rows, num_cols):
-    accumulated_input = StringBuilder()
-    while True:
-        ch = input_window.get_input()
-        if ch != curses.ERR:
-            if ch == ENTER:
-                handle_enter(server_socket, accumulated_input, input_window)
-            elif ch == BACKSPACE: 
-                handle_backspace(accumulated_input, input_window) 
-            elif ch == SCROLL: 
-                handle_scroll(input_window, received_window)
-            else:
-                handle_normal_ch(ch, accumulated_input, input_window)
-                
-        await asyncio.sleep(SLEEP_TIME)
 
 def determine_sender(addr):
     sender = None
@@ -306,9 +202,7 @@ if __name__ == "__main__":
 2. add docs
 
 dividing categories:
-1. input_window 50 zumaad 
 2. received_window 50 mitch 
-3. all user_input related stuff 37 zumaad 
 4. constants and utils file 45 zumaad and mitch
 5. all received_message stuff 36 mitch 
 """

@@ -210,6 +210,12 @@ def determine_sender(addr):
         sender = SENDER.OTHER
     return sender.value
 
+def format_metadata(received_message):
+    messager = received_message["name"]
+    curr_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+    return f'{messager}     {curr_time}'
+
+
 async def get_messages(server_socket, received_window):
     while True:
         json_message = None
@@ -220,11 +226,10 @@ async def get_messages(server_socket, received_window):
         if json_message:
             received_message = json.loads(json_message)
             logging.debug(received_message)
-            messager = received_message["name"]
+
             message  = received_message["message"]
             color_num = determine_sender(received_message['address'])
-            curr_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-            metadata = f'{messager}     {curr_time}'
+            metadata = format_metadata(received_message)
             received_window.paint_message(metadata, message, color_num)
 
 
@@ -286,8 +291,6 @@ if __name__ == "__main__":
 
 
 """
-2. break paint_message into smaller peices (maybe)
-3. handle json parsing outside of received (maybe something that is called in get_messages)
 4. add constants for the math stuff
 5. break things up into multiple files, e.g. key handlers, the different classes
 

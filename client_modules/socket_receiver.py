@@ -3,12 +3,12 @@ import asyncio
 import logging
 import json
 import re
-
-from .utils import SENDER, SLEEP_TIME, ADDRESS, BUFFER_SIZE
+from . import utils
+from .utils import SENDER, SLEEP_TIME, BUFFER_SIZE
 
 def determine_sender(addr):
     sender = None
-    if addr == ADDRESS:
+    if addr == utils.ADDRESS:
         sender = SENDER.SELF
     elif addr == 0:
         sender = SENDER.TERMINAL

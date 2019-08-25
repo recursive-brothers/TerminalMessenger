@@ -1,5 +1,3 @@
-HOST    = '18.222.230.158'  # The server's hostname or IP address
-PORT    = int(args.port) # The port used by the server
 ADDRESS = None
 
 BUFFER_SIZE = 1024
@@ -17,3 +15,30 @@ class SENDER(Enum):
     SELF     = 1
     TERMINAL = 2
     OTHER    = 3
+
+class StringBuilder:
+    def __init__(self):
+        self.ch_list = []
+
+    def _append(self, seq):
+        self.ch_list.append(seq)
+    
+    def delete(self, num):
+        self.ch_list = self.ch_list[:num * -1]
+
+    def build(self):
+        built_str = ''.join(self.ch_list)
+        self.ch_list.clear()
+        return built_str
+
+    def __iadd__(self, seq):
+        self._append(seq)
+
+    def __bool__(self):
+        return bool(self.ch_list)
+
+
+class CursorPosition:
+    def __init__(self,startY,startX):
+        self.y = startY
+        self.x = startX

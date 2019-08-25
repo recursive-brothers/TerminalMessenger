@@ -256,4 +256,7 @@ if __name__ == "__main__":
 3. handle json parsing outside of received (maybe something that is called in get_messages)
 4. add constants for the math stuff
 5. break things up into multiple files, e.g. key handlers, the different classes
+
+ERROR_LIST:
+1. log file getting polluted with information that seems irrelevant? Something about not receiving messages and not blocking
 """

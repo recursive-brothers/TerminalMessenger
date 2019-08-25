@@ -2,50 +2,57 @@
 
 Chat server and client written with Python using sockets library :)
 
-roadmap:
-
-TODO: 
-
-core features:
+## Core Features ##
 - message one on one with another client
 - group messaging
-    - public forums anyone can read and write messages to
-    - private chatrooms which users add other users to
+	- public forums anyone can read and write messages to
+	- private chatrooms which users add other users to
 - add names to messages
-- accounts (data persistance)
-- message history
+- Persistence
+	- accounts for users
+	- message history
 - multi threaded server (for things like handling client handshake in own function, handling even more messages/chatrooms,etc)
+	- handling a client-server handshake
+	- better performance and management for multiple messages/chatrooms
 
-
-bonus features:
-- formatting with ncurses
-- encryption
-- packaging it with pypy
-- dockerize it 
-- adding useful text commands (/join to join a chatroom, /l to list public chatrooms)
-- pretty colors :)
-- analysis of your message history
-- admin privileges to starters of group messages/chatrooms, etc.
-- image rendering 
-- security (blocking ips,etc)
-- text search for previous messages
-- mouse up to get past messages
-- scrollable text area
-- input autocomplete
-- add messages for users that connected/disconnected to the chatroom
-- emojis
-- HTTP server that serves:
-	- user/message history
-	- Data analytics
-	- Full-text search
-	- and more
-- create additional clients using WebSockets to communicate with
-	- gain the ability to send messages from terminal to browser client and vice versa
-	- create a desktop app to accompany the browser version of the client
-	- allow the ability to send images (convert images to ascii art for the terminal)
-- additional Terminal Client features:
+## Bonus Features ##
+- App management:
+	- packaging it with pypy
+	- dockerize it 
+	- have different subdomains for the different services of our application
+	- script to scrape for all errors in server.log, or a certain number of them, like tail for errors (sed?)
+	- horizontal scaling with a load balancer
+	- add a domain name
+- Terminal Client:
+	- formatting with ncurses
+	- adding useful text commands (/join to join a chatroom, /l to list public chatrooms)
+	- image rendering 
+	- text search for previous messages
+	- mouse up to get past messages and load previous messages on scroll
+	- scrollable input area for long messages
+	- input autocomplete(?)
+	- emojis
 	- split terminal for multiple chatrooms
 	- autocomplete for text commands
 	- sidebar with options for interacting with multiple chatrooms
-- hidden file with username and password saved to not type in username and password every time
-- speech recognition
+	- pretty colors :)
+	- add messages for users that connected/disconnected to the chatroom
+	- speech recognition
+- Terminal Server:
+	- admin privileges to starters of group messages/chatrooms, etc.
+	- hidden file with username and password saved to not type in username and password every time (almost like a cookie)
+- Security:
+	- encryption
+	- security (blocking ips, etc)
+	- prevent injection/other exploits to server
+- HTTP Server:
+	- user/message history
+	- Data analytics (possibly integrated with the client by default?)
+	- Full-text search
+	- and more
+- WebSockets Client:
+	- gain the ability to send messages from terminal to browser client and vice versa
+	- create a desktop app to accompany the browser version of the client
+	- allow the ability to send images (convert images to ascii art for the terminal?)
+	- integrate all other terminal client features
+- static HTML page that we serve (with web server) about the project (until HTTP server server are established)

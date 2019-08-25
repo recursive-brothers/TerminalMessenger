@@ -87,6 +87,13 @@ class ReceivedWindow:
             self.top_left.y = max(self.top_left.y + lines, 0)
             self.refresh()
 
+    def _paint_str(self, string, color_fmt):
+        width = self.width - 2
+        while string:
+            self.window.addstr(self.cursor.y, self.cursor.x, string[:width], color_fmt)
+            self.cursor.y += 1
+            string = string[width:]
+
     def paint_message(self, metadata, message, color):
         # we have a one character margin on both sides of the received window
         width = self.width - 2
@@ -105,16 +112,8 @@ class ReceivedWindow:
             self.scroll(lines_to_scroll)
             self.window.resize(self.height, self.width)
 
-
-        # so we don't support metadata longer than 1 line?
-        self.window.addstr(self.cursor.y, self.cursor.x, metadata, curses.color_pair(color) | curses.A_STANDOUT)
-        self.cursor.y += 1
-
-        # can abstract this into one function
-        while message:
-            self.window.addstr(self.cursor.y, self.cursor.x, message[:width], curses.color_pair(color))
-            self.cursor.y += 1
-            message = message[width:]
+        self._paint_str(metadata, curses.color_pair(color) | curses.A_STANDOUT)
+        self._paint_str(message, curses.color_pair(color))
 
         self.refresh()
 

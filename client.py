@@ -134,7 +134,7 @@ class InputWindow:
         self.window.refresh()
         self.cursor.x = self.cursor.y = 1
 
-    def add_char(self,ch):
+    def add_char(self, ch):
         self.window.addstr(self.cursor.y,self.cursor.x,chr(ch))
         self.cursor.x += 1 
 
@@ -165,7 +165,7 @@ class InputWindow:
 def handle_enter(server_socket, accumulated_input, input_window):
     if accumulated_input:
         input_window.clear_text()
-        server_socket.sendall(accumulated_input.build().decode())
+        server_socket.sendall(accumulated_input.build().encode())
 
 def handle_backspace(accumulated_input, input_window):
     accumulated_input.delete(1)

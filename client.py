@@ -24,14 +24,24 @@ args = parser.parse_args()
 
 
 
-HOST =    '18.222.230.158'  # The server's hostname or IP address
-PORT =    int(args.port) # The port used by the server
+HOST    = '18.222.230.158'  # The server's hostname or IP address
+PORT    = int(args.port) # The port used by the server
 ADDRESS = None
+
+BUFFER_SIZE = 1024
+SLEEP_TIME  = .001
+
+ENTER       = 10
+BACKSPACE   = 127
+SCROLL      = 27
+SCROLL_UP   = 65
+SCROLL_DOWN = 66
 
 class SENDER(Enum):
     SELF     = 1
     TERMINAL = 2
     OTHER    = 3
+
 
 
 
@@ -173,9 +183,9 @@ def handle_backspace(accumulated_input, input_window):
 def handle_scroll(input_window, received_window):
     input_window.get_input()
     scroll_direction = input_window.get_input()
-    if scroll_direction == 65:
+    if scroll_direction == SCROLL_UP:
         received_window.scroll(-1)
-    elif scroll_direction == 66:
+    elif scroll_direction == SCROLL_DOWN:
         received_window.scroll(1)
 
 # this name is bad
@@ -189,16 +199,16 @@ async def get_accumulated_input(server_socket, input_window, received_window, nu
     while True:
         ch = input_window.get_input()
         if ch != curses.ERR:
-            if ch == ord('\n'):
+            if ch == ENTER:
                 handle_enter(server_socket, accumulated_input, input_window)
-            elif ch == 127:
-                handle_backspace(accumulated_input, input_window)
-            elif ch == 27:
+            elif ch == BACKSPACE: 
+                handle_backspace(accumulated_input, input_window) 
+            elif ch == SCROLL: 
                 handle_scroll(input_window, received_window)
             else:
                 handle_normal_ch(ch, accumulated_input, input_window)
                 
-        await asyncio.sleep(.001)
+        await asyncio.sleep(SLEEP_TIME)
 
 def determine_sender(addr):
     sender = None
@@ -220,7 +230,7 @@ async def get_messages(server_socket, received_window):
     while True:
         json_message = None
         try:
-            json_message = server_socket.recv(1024).decode()
+            json_message = server_socket.recv(BUFFER_SIZE).decode()
         except:
             pass
         if json_message:
@@ -233,7 +243,7 @@ async def get_messages(server_socket, received_window):
             received_window.paint_message(metadata, message, color_num)
 
 
-        await asyncio.sleep(.001)
+        await asyncio.sleep(SLEEP_TIME)
 
           
 async def main(s):
@@ -271,7 +281,7 @@ def cleanup_curses():
 
 def handshake(server_socket):
     global ADDRESS
-    ip_and_port = json.loads(server_socket.recv(1024).decode())
+    ip_and_port = json.loads(server_socket.recv(BUFFER_SIZE).decode())
     ADDRESS = [ip_and_port['address'], ip_and_port['port']]
     server_socket.sendall(args.name.encode())
     server_socket.setblocking(False)
@@ -296,4 +306,12 @@ if __name__ == "__main__":
 
 ERROR_LIST:
 1. log file getting polluted with information that seems irrelevant? Something about not receiving messages and not blocking
+"""
+
+"""
+list of constants:
+1. 1024 for buffer size
+3. asyncio manual await sleep value
+4. character constants
+2. the numbers for deciding received window and input window size and cursor pos
 """

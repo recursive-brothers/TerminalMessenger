@@ -4,7 +4,7 @@ import logging
 import json
 import re
 
-from .utils import SENDER, SLEEP_TIME, BUFFER_SIZE, ADDRESS
+from .utils import SENDER, SLEEP_TIME, ADDRESS, BUFFER_SIZE
 
 def determine_sender(addr):
     sender = None

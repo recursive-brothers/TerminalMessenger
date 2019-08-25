@@ -55,9 +55,9 @@ def cleanup_curses():
     curses.endwin()
 
 def handshake(server_socket):
-    global ADDRESS
+    # global ADDRESS
     ip_and_port = json.loads(server_socket.recv(BUFFER_SIZE).decode())
-    ADDRESS = [ip_and_port['address'], ip_and_port['port']]
+    utils.ADDRESS = [ip_and_port['address'], ip_and_port['port']]
     server_socket.sendall(args.name.encode())
     server_socket.setblocking(False)
 

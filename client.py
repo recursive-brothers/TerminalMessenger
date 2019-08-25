@@ -11,19 +11,16 @@ import traceback
 from enum import Enum
 import re
 
+
 logging.basicConfig(filename='client.log',
                             filemode='a',
                             datefmt='%H:%M:%S',
                             level=logging.DEBUG)
 
-
-
 parser = argparse.ArgumentParser()
 parser.add_argument('port')
 parser.add_argument('--name', '-n', default='Anonymous')
 args = parser.parse_args()
-
-
 
 HOST    = '18.222.230.158'  # The server's hostname or IP address
 PORT    = int(args.port) # The port used by the server
@@ -44,8 +41,6 @@ class SENDER(Enum):
     SELF     = 1
     TERMINAL = 2
     OTHER    = 3
-
-
 
 
 class StringBuilder:

@@ -37,6 +37,8 @@ SCROLL      = 27
 SCROLL_UP   = 65
 SCROLL_DOWN = 66
 
+RECEIVED_WINDOW_RATIO = .85
+
 class SENDER(Enum):
     SELF     = 1
     TERMINAL = 2
@@ -194,7 +196,7 @@ def handle_normal_ch(ch, accumulated_input, input_window):
     input_window.add_char(ch)
 
 
-async def get_accumulated_input(server_socket, input_window, received_window, num_rows, num_cols):
+async def get_user_input(server_socket, input_window, received_window, num_rows, num_cols):
     accumulated_input = StringBuilder()
     while True:
         ch = input_window.get_input()
@@ -226,7 +228,7 @@ def format_metadata(received_message):
     return f'{messager}     {curr_time}'
 
 
-async def get_messages(server_socket, received_window):
+async def receive_server_messages(server_socket, received_window):
     while True:
         json_message = None
         try:
@@ -250,15 +252,15 @@ async def main(s):
     stdscr = setup_curses()
 
     num_rows, num_cols = stdscr.getmaxyx()
-    received_messages_rows = int(.85 * num_rows)
-    sending_message_rows = num_rows - received_messages_rows
+    received_window_rows = int(RECEIVED_WINDOW_RATIO * num_rows)
+    input_window_rows = num_rows - received_window_rows
     
-    # might want to put these numbers into constants up top or somewhere so that it's easy to change and makes some goddamn sense
-    received_window = ReceivedWindow(received_messages_rows, num_cols, 0, 1)
-    input_window = InputWindow(sending_message_rows,num_cols,received_messages_rows,0,1,1)
+    # do we want documentation for what this means?
+    received_window = ReceivedWindow(received_window_rows, num_cols, 0, 1)
+    input_window = InputWindow(input_window_rows, num_cols, received_window_rows, 0, 1, 1)
     
-    get_input = asyncio.ensure_future(get_accumulated_input(s, input_window, received_window, num_cols, received_messages_rows))
-    get_output = asyncio.ensure_future(get_messages(s, received_window))
+    get_input = asyncio.ensure_future(get_user_input(s, input_window, received_window, num_cols, received_window_rows))
+    get_output = asyncio.ensure_future(receive_server_messages(s, received_window))
     await get_output
     await get_input
 
@@ -301,17 +303,6 @@ if __name__ == "__main__":
 
 
 """
-4. add constants for the math stuff
-5. break things up into multiple files, e.g. key handlers, the different classes
-
-ERROR_LIST:
-1. log file getting polluted with information that seems irrelevant? Something about not receiving messages and not blocking
-"""
-
-"""
-list of constants:
-1. 1024 for buffer size
-3. asyncio manual await sleep value
-4. character constants
-2. the numbers for deciding received window and input window size and cursor pos
+1. break things up into multiple files, e.g. key handlers, the different classes
+2. add docs
 """

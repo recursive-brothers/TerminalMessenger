@@ -105,56 +105,16 @@ class ReceivedWindow:
             self.scroll(lines_to_scroll)
             self.window.resize(self.height, self.width)
 
-        # while message:
-        #     self.window.addstr(self.cursor.y, self.cursor.x, message[:width], curses.color_pair(color))
-        #     self.cursor.y += 1
-        #     message = message[width:]
 
         # so we don't support metadata longer than 1 line?
         self.window.addstr(self.cursor.y, self.cursor.x, metadata, curses.color_pair(color) | curses.A_STANDOUT)
         self.cursor.y += 1
 
         # can abstract this into one function
-        while True:
+        while message:
             self.window.addstr(self.cursor.y, self.cursor.x, message[:width], curses.color_pair(color))
             self.cursor.y += 1
-            if len(message) > width:
-                message = message[width:]
-            else:
-                break
-
-        self.refresh()
-
-
-        
-    def paint_message_deprecated(self, message):
-        received_message = json.loads(json_message)
-        logging.debug(received_message)
-        messager = received_message["name"]
-        message  = received_message["message"]
-        color_num = self.pick_color(received_message['address'])
-
-        message_line_height = int(2 + len(message) / (self.width - 2))
-        lines_to_scroll = message_line_height + self.cursor.y - self.height
-
-        if lines_to_scroll > 0:
-            self.height += lines_to_scroll
-            self.scroll(lines_to_scroll)
-            self.window.resize(self.height, self.width)
-
-
-        curr_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-
-        self.window.addstr(self.cursor.y, self.cursor.x, f'{messager}     {curr_time}', curses.color_pair(color_num) | curses.A_STANDOUT)
-        self.cursor.y += 1
-
-        while True:
-            self.window.addstr(self.cursor.y, self.cursor.x, message[:self.width - 2], curses.color_pair(color_num))
-            self.cursor.y += 1
-            if len(message) > self.width - 2:
-                message = message[self.width-2:]
-            else:
-                break
+            message = message[width:]
 
         self.refresh()
 

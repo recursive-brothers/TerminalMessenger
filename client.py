@@ -304,4 +304,12 @@ if __name__ == "__main__":
 """
 1. break things up into multiple files, e.g. key handlers, the different classes
 2. add docs
+
+dividing categories:
+1. input_window 50 zumaad 
+2. received_window 50 mitch 
+3. all user_input related stuff 37 zumaad 
+4. constants and utils file 45 zumaad and mitch
+5. all received_message stuff 36 mitch 
 """
+

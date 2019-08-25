@@ -236,8 +236,8 @@ async def receive_server_messages(server_socket, received_window):
         except:
             pass
         if json_message:
+            logging.debug(json_message)
             received_message = json.loads(json_message)
-            logging.debug(received_message)
 
             message  = received_message["message"]
             color_num = determine_sender(received_message['address'])

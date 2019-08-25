@@ -1,4 +1,5 @@
 import curses
+from .utils import CursorPosition
 
 class InputWindow:
     def __init__(self, num_rows, num_cols, startY, startX, cursorY, cursorX):

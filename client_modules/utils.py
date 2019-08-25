@@ -1,3 +1,5 @@
+from enum import Enum
+
 ADDRESS = None
 
 BUFFER_SIZE = 1024

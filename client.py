@@ -5,14 +5,9 @@ import argparse
 import asyncio
 import curses
 import logging
-import datetime
 import json
 import traceback
-from enum import Enum
-import re
-
-HOST    = '18.222.230.158'  # The server's hostname or IP address
-PORT    = int(args.port) # The port used by the server
+from client_modules import *
 
 logging.basicConfig(filename='client.log',
                             filemode='a',
@@ -23,6 +18,9 @@ parser = argparse.ArgumentParser()
 parser.add_argument('port')
 parser.add_argument('--name', '-n', default='Anonymous')
 args = parser.parse_args()
+
+HOST    = '18.222.230.158'  # The server's hostname or IP address
+PORT    = int(args.port) # The port used by the server
 
 async def main(s):
     stdscr = setup_curses()
@@ -77,6 +75,5 @@ if __name__ == "__main__":
 
 
 """
-1. break things up into multiple files, e.g. key handlers, the different classes
-2. add docs
+1. add docs
 """

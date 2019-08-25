@@ -1,3 +1,6 @@
+import curses
+from .utils import CursorPosition
+
 class ReceivedWindow:
     def __init__(self, num_rows, num_cols, startY, startX):
         self.cursor = CursorPosition(startY, startX)

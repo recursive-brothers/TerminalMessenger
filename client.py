@@ -160,7 +160,7 @@ def handle_scroll(input_window, received_window):
     elif scroll_direction == 66:
         received_window.scroll(1)
 
-def handle_normal_ch(built_str, input_window):
+def handle_normal_ch(ch, built_str, input_window):
     built_str.append(chr(ch))
     input_window.add_char(ch)
 
@@ -177,7 +177,7 @@ async def get_user_input(server_socket, input_window, received_window, num_rows,
             elif ch == 27:
                 handle_scroll(input_window, received_window)
             else:
-                handle_normal_ch(built_str, input_window)
+                handle_normal_ch(ch, built_str, input_window)
                 
         await asyncio.sleep(.001)
 

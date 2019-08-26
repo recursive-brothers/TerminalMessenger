@@ -41,6 +41,7 @@ Chat server and client written with Python using sockets library :)
 - [x] add messages for users that connected/disconnected to the chatroom
 - [ ] speech recognition
 - [ ] on sleep/disconnection, display 'disconnected' and try to reconnect on message send
+- [ ] terminal multiplexer, work in the terminal on one pane and message in the other
 ### Terminal Server ###
 - [ ] admin privileges to starters of group messages/chatrooms, etc.
 - [ ] hidden file with username and password saved to not type in username and password every time (almost like a cookie)

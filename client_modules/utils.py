@@ -39,7 +39,6 @@ class StringBuilder:
     def __bool__(self):
         return bool(self.ch_list)
 
-
 class CursorPosition:
     def __init__(self,startY,startX):
         self.y = startY

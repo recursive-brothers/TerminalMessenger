@@ -2,8 +2,10 @@ import curses
 from .utils import CursorPosition
 
 class ReceivedWindow:
-    def __init__(self, num_rows, num_cols, startY, startX):
-        self.cursor = CursorPosition(startY, startX)
+    # the pad constructor only takes height and width
+    # this constructor also provides initial cursor position
+    def __init__(self, num_rows, num_cols, cursorY, cursorX):
+        self.cursor = CursorPosition(cursorY, cursorX)
         self.window = curses.newpad(num_rows, num_cols)
         self.width = num_cols
         self.height = num_rows
@@ -19,6 +21,14 @@ class ReceivedWindow:
         self.refresh()
 
     def refresh(self):
+        # The refresh method on pads takes the following arguments:
+        # - pminrow: the y-coordinate for the top-left corner of the contents in the pad to be displayed
+        # - pmincol: the x-coordinate for the top-left corner of the contents in the pad to be displayed
+        # - sminrow: the top row of the screen where the drawing begins
+        # - smincol: the left-hand column of the screen where the drawing begins
+        # - smaxrow: the bottom row of the screen where the drawing ends
+        # - smaxcol: the right-hand column of the screen where the drawing ends
+        # We subtract 1 from height and width for the same reason the last element of an array is at len - 1
         self.window.refresh(self.top_left.y, self.top_left.x, 0, 0, self.display_height - 1, self.display_width - 1) #refresh display_height -1 to avoid overlap
 
     def scroll(self, lines):

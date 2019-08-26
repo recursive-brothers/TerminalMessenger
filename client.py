@@ -19,8 +19,8 @@ parser.add_argument('port')
 parser.add_argument('--name', '-n', default='Anonymous')
 args = parser.parse_args()
 
-HOST    = 'terminalmessenger.com'  # The server's hostname or IP address
-PORT    = int(args.port) # The port used by the server
+HOST    = 'terminalmessenger.com'
+PORT    = int(args.port)
 
 async def main(s):
     stdscr = setup_curses()
@@ -29,7 +29,6 @@ async def main(s):
     received_window_rows = int(RECEIVED_WINDOW_RATIO * num_rows)
     input_window_rows = num_rows - received_window_rows
     
-    # do we want documentation for what this means?
     received_window = ReceivedWindow(received_window_rows, num_cols, 0, 1)
     input_window = InputWindow(input_window_rows, num_cols, received_window_rows, 0, 1, 1)
     
@@ -55,7 +54,6 @@ def cleanup_curses():
     curses.endwin()
 
 def handshake(server_socket):
-    # global ADDRESS
     ip_and_port = json.loads(server_socket.recv(BUFFER_SIZE).decode())
     utils.ADDRESS = [ip_and_port['address'], ip_and_port['port']]
     server_socket.sendall(args.name.encode())
@@ -72,8 +70,3 @@ if __name__ == "__main__":
         logging.debug(traceback.format_exc())
     finally:
         cleanup_curses()
-
-
-"""
-1. add docs
-"""

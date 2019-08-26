@@ -2,10 +2,16 @@ import curses
 from .utils import CursorPosition
 
 class InputWindow:
+    # curses window constructor takes 4 arguments:
+    # - num_rows: height of window
+    # - num_cols: width of window
+    # - begin_y: y-coordinate of where top-left corner of window will be drawn on screen
+    # - begin_x: x-coordinate of where top-left corner of window will be drawn on screen
+    # this constructor takes the above 4 arguments plus the starting y,x coordinate of the cursor
     def __init__(self, num_rows, num_cols, startY, startX, cursorY, cursorX):
         self.height = num_rows
         self.width = num_cols
-        self.window = curses.newwin(num_rows, num_cols,startY,startX)
+        self.window = curses.newwin(num_rows, num_cols, startY, startX)
         self.cursor = CursorPosition(cursorY, cursorX)
         self.window.nodelay(True)
         self.add_border()

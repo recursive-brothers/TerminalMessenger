@@ -1,5 +1,3 @@
-# from . import input_window, received_window, utils, user_handling, socket_receiver
-
 from .input_window    import InputWindow
 from .received_window import ReceivedWindow
 from .socket_receiver import receive_server_messages

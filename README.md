@@ -22,7 +22,7 @@ Chat server and client written with Python using sockets library :)
 - [ ] have different subdomains for the different services of our application (e.g. http server)
 - [ ] script to scrape for all errors in server.log, or a certain number of them, like tail for errors (sed?)
 - [ ] horizontal scaling with a load balancer
-- [ ] add a domain name
+- [x] add a domain name
 - [ ] comply with ICMP protocol to allow for 'ping'
 ### Terminal Client ###
 - [x] formatting with ncurses

@@ -6,7 +6,7 @@ if [ "$1" != "" ]; then
   LINES=$1
 fi
 
-ssh tm@18.222.230.158 "
+ssh tm@terminalmessenger.com "
 cd TerminalMessenger/;
 tail -n $LINES server.log
 "

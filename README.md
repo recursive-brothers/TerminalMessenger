@@ -44,10 +44,12 @@ Chat server and client written with Python using sockets library :)
 ### Terminal Server ###
 - [ ] admin privileges to starters of group messages/chatrooms, etc.
 - [ ] hidden file with username and password saved to not type in username and password every time (almost like a cookie)
+- [ ] send messages to other endpoints (SMS, Facebook, Slack, etc)
 ### Security ###
 - [ ] encryption
 - [ ] security (blocking ips, etc)
 - [ ] prevent injection/other exploits to server
+- [ ] defend against unknown information/requests
 ### HTTP Server ###
 - [ ] **TEMP** static HTML page that we serve (with web server) about the project (until HTTP server server are established)
 - [ ] user/message history

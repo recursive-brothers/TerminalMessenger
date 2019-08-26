@@ -19,7 +19,7 @@ parser.add_argument('port')
 parser.add_argument('--name', '-n', default='Anonymous')
 args = parser.parse_args()
 
-HOST    = '18.222.230.158'  # The server's hostname or IP address
+HOST    = 'terminalmessenger.com'  # The server's hostname or IP address
 PORT    = int(args.port) # The port used by the server
 
 async def main(s):

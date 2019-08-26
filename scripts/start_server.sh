@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ssh tm@18.222.230.158 '
+ssh tm@terminalmessenger.com '
 cd TerminalMessenger/;
 killall screen;
 git pull;

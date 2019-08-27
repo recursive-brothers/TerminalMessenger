@@ -66,9 +66,11 @@ if __name__ == "__main__":
             handshake(s)
             loop = asyncio.get_event_loop()
             loop.run_until_complete(main(s))
-    except:
-        logging.debug(traceback.format_exc())
-    finally:
+    except KeyboardInterrupt:
+        logging.debug("keyboard interrupt, shutting down client")
         cleanup_curses()
+    except ConnectionRefusedError:
+        logging.debug(traceback.format_exc())
+        print("Can't connect to server. Try again later.")
+    
 
-# nice error message rather than the nocbreak error

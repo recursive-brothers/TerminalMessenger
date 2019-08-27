@@ -70,3 +70,5 @@ if __name__ == "__main__":
         logging.debug(traceback.format_exc())
     finally:
         cleanup_curses()
+
+# nice error message rather than the nocbreak error

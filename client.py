@@ -72,3 +72,4 @@ if __name__ == "__main__":
         cleanup_curses()
 
 # nice error message rather than the nocbreak error
+#add specific error message for when client's internet is off

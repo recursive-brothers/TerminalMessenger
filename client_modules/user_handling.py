@@ -23,7 +23,6 @@ def handle_scroll(input_window, received_window):
 # this name is bad
 def handle_normal_ch(ch, accumulated_input, input_window):
     accumulated_input += chr(ch)
-    logging.debug(accumulated_input)
     input_window.add_char(ch)
 
 

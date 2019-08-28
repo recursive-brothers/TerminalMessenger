@@ -19,13 +19,16 @@ class SENDER(Enum):
     OTHER    = 3
 
 class StringBuilder:
-    def __init__(self):
-        self.ch_list = []
-
+    def __init__(self,string = None):
+        self.ch_list = list(string) if string else []
+        
+    
     def _append(self, seq):
-        self.ch_list.append(seq)
+        self.ch_list.extend(list(seq))
     
     def delete(self, num):
+        if num <= 0:
+            return
         self.ch_list = self.ch_list[:num * -1]
 
     def build(self):
@@ -35,9 +38,13 @@ class StringBuilder:
 
     def __iadd__(self, seq):
         self._append(seq)
-
+        return self
+        
     def __bool__(self):
         return bool(self.ch_list)
+
+    def __eq__(self, other):
+        return other.ch_list == self.ch_list
 
 class CursorPosition:
     def __init__(self,startY,startX):

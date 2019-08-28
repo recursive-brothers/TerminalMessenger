@@ -2,6 +2,7 @@ import curses
 import asyncio
 from .utils import SCROLL, SCROLL_UP, SCROLL_DOWN, BACKSPACE, ENTER, SLEEP_TIME, StringBuilder
 
+
 def handle_enter(server_socket, accumulated_input, input_window):
     if accumulated_input:
         input_window.clear_text()
@@ -22,6 +23,7 @@ def handle_scroll(input_window, received_window):
 # this name is bad
 def handle_normal_ch(ch, accumulated_input, input_window):
     accumulated_input += chr(ch)
+    logging.debug(accumulated_input)
     input_window.add_char(ch)
 
 

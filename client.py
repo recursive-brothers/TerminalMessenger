@@ -70,12 +70,12 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         logging.debug("keyboard interrupt, shutting down client")
         cleanup_curses()
-
     except ConnectionRefusedError:
         logging.debug(traceback.format_exc())
         print("Can't connect to server. Try again later.")
+    except socket.gaierror:
+        logging.debug(traceback.format_exc())
+        print("Can't find the server. Are you connected to the internet?")
     
 """ Implement proper exception handling for asyncio as current errors are just
     being swallowed and the client hangs """
-
-# add specific error message for when client's internet is off

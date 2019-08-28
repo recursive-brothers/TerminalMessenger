@@ -14,24 +14,48 @@ class InputWindow:
         self.window = curses.newwin(num_rows, num_cols, startY, startX)
         self.cursor = CursorPosition(cursorY, cursorX)
         self.window.nodelay(True)
-        self.add_border()
+        self._add_border()
         self.window.refresh()
     
     def clear_text(self):
         self.window.erase()
-        self.window.border('|', '|', '-', '-', '+', '+', '+', '+')
+        self._add_border()
         self.window.refresh()
         self.cursor.x = self.cursor.y = 1
 
-    def add_char(self, ch):
-        self.window.addstr(self.cursor.y,self.cursor.x,chr(ch))
-        self.cursor.x += 1 
+    # the width calculation here is **very** different than in received_window. 
+    # explanation:
+    #   CONTEXT: START COUNTING WIDTH AT 0
+    #   cursor.x is always pointing at the space after where the last character was added.
+    #   this means that cursor.x should move down one line exactly when it is at the right border,
+    #   which is at width - 1.
+    #   because cursor.x automatically starts at 1 when we move to the next line, there is no reason
+    #   to try and 'factor it out' in the logic. It just works.
+    # in received window, we do the scroll and other calculations in one batch: we determine the 
+    # number of lines to scroll based on the number of columns excluding the border, and we always
+    # add the string starting from cursor.x = 1 and never factor cursor.x into the equation.
+    def add_str(self, msg):
+        width = self.width - 1
 
-        if self.cursor.x == self.width - 1:
-            self.cursor.y += 1
-            self.cursor.x = 1
+        while msg:
+            if len(msg) + self.cursor.x >= width:
+                self.window.addstr(self.cursor.y, self.cursor.x, msg[:width - self.cursor.x])
+                self.cursor.y += 1
+                self.cursor.x = 1
+                msg = msg[width - self.cursor.x:]
+            else:
+                self.window.addstr(self.cursor.y, self.cursor.x, msg)
+                self.cursor.x += len(msg)
+                break
+
+        # self.cursor.x = 7, width = 10, actual width is 8, len = 1
+        # len(msg) + x = 10
+
+        # if self.cursor.x == self.width - 1:
+        #     self.cursor.y += 1
+        #     self.cursor.x = 1
     
-    def add_border(self):
+    def _add_border(self):
         self.window.border('|', '|', '-', '-', '+', '+', '+', '+')
     
     def get_input(self):

@@ -23,8 +23,9 @@ def handle_scroll(input_window, received_window):
 
 # this name is bad
 def handle_normal_ch(ch, accumulated_input, input_window):
-    accumulated_input += chr(ch)
-    input_window.add_char(ch)
+    ch = chr(ch)
+    accumulated_input += ch
+    input_window.add_str(ch)
 
 
 async def get_user_input(server_socket, input_window, received_window, num_rows, num_cols):

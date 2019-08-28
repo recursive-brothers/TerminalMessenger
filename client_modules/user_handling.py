@@ -3,6 +3,7 @@ import asyncio
 from .utils import SCROLL, SCROLL_UP, SCROLL_DOWN, BACKSPACE, ENTER, SLEEP_TIME, StringBuilder
 
 
+
 def handle_enter(server_socket, accumulated_input, input_window):
     if accumulated_input:
         input_window.clear_text()

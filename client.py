@@ -59,6 +59,7 @@ def handshake(server_socket):
     server_socket.sendall(args.name.encode())
     server_socket.setblocking(False)
 
+
 if __name__ == "__main__":
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -73,4 +74,5 @@ if __name__ == "__main__":
         logging.debug(traceback.format_exc())
         print("Can't connect to server. Try again later.")
     
-
+""" Implement proper exception handling for asyncio as current errors are just
+    being swallowed and the client hangs """

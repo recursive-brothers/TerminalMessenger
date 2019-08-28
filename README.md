@@ -15,6 +15,7 @@ Chat server and client written with Python using sockets library :)
 	- [ ] handling a client-server handshake
 	- [ ] better performance and management for multiple messages/chatrooms
 - [ ] restructuring project to follow a legitimate package and API (logging class, better import system, class and configuration)
+    - [ ] run tests out of one file/command
 
 ## Bonus Features ##
 ### DevOps ###

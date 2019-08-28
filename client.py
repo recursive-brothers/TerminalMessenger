@@ -59,6 +59,7 @@ def handshake(server_socket):
     server_socket.sendall(args.name.encode())
     server_socket.setblocking(False)
 
+
 if __name__ == "__main__":
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -66,10 +67,18 @@ if __name__ == "__main__":
             handshake(s)
             loop = asyncio.get_event_loop()
             loop.run_until_complete(main(s))
-    except:
-        logging.debug(traceback.format_exc())
-    finally:
+    except KeyboardInterrupt:
+        logging.debug("keyboard interrupt, shutting down client")
         cleanup_curses()
+<<<<<<< HEAD
 
 # nice error message rather than the nocbreak error
 #add specific error message for when client's internet is off
+=======
+    except ConnectionRefusedError:
+        logging.debug(traceback.format_exc())
+        print("Can't connect to server. Try again later.")
+    
+""" Implement proper exception handling for asyncio as current errors are just
+    being swallowed and the client hangs """
+>>>>>>> 11fb2c826985dd253506529d1d76869249dadacf

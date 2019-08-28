@@ -34,7 +34,6 @@ async def receive_server_messages(server_socket, received_window):
             json_messages = re.findall(message_format, raw_messages)
 
             for json_msg in json_messages:
-                logging.debug(json_msg)
                 received_message = json.loads(json_msg)
                 message  = received_message["message"]
                 color_num = determine_sender(received_message['address'])

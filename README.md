@@ -14,8 +14,13 @@ Chat server and client written with Python using sockets library :)
 - [ ] multi threaded server (for things like handling client handshake in own function, handling even more messages/chatrooms,etc)
 	- [ ] handling a client-server handshake
 	- [ ] better performance and management for multiple messages/chatrooms
+<<<<<<< HEAD
 -[ ] keyboard shortcuts/hotkeys
  - [ ] 'ctrl-z', 'ctrl-u', etc
+=======
+- [ ] restructuring project to follow a legitimate package and API (logging class, better import system, class and configuration)
+    - [ ] run tests out of one file/command
+>>>>>>> 11fb2c826985dd253506529d1d76869249dadacf
 
 ## Bonus Features ##
 ### DevOps ###

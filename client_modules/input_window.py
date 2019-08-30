@@ -48,13 +48,6 @@ class InputWindow:
                 self.cursor.x += len(msg)
                 break
 
-        # self.cursor.x = 7, width = 10, actual width is 8, len = 1
-        # len(msg) + x = 10
-
-        # if self.cursor.x == self.width - 1:
-        #     self.cursor.y += 1
-        #     self.cursor.x = 1
-    
     def _add_border(self):
         self.window.border('|', '|', '-', '-', '+', '+', '+', '+')
     

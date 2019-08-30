@@ -89,7 +89,7 @@ def handle_client(socket_wrapper, events):
 	if events & selectors.EVENT_READ:
 		try:
 			recv_data = client_socket.recv(1024)
-		except ConnectionResetError:
+		except ConnectionResetError: #this is the connection reset by peer error.
 			recv_data = None
 			os_error_logging(socket_wrapper)
 		except TimeoutError:

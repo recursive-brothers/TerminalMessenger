@@ -33,20 +33,42 @@ class InputWindowTest(unittest.TestCase):
     self.assertEqual(self.input_window.cursor.y, 1)
     self.assertEqual(self.input_window.cursor.x, 1)
 
-  def test_add_char(self):
-    self.input_window.add_char('h')
+  def test_add_str(self):
+    self.input_window.add_str('h')
     self.assertEqual(self.input_window.cursor.x, 2)
     self.assertEqual(self.input_window.cursor.y, 1)
 
-  def test_add_char_wrap(self):
-    self.input_window.add_char("porkchop")
-
-  def test_get_input(self):
-    pass
+  def test_add_str_wrap(self):
+    self.input_window.add_str("porkchop")
+    self.assertEqual(self.input_window.cursor.x, 1)
+    self.assertEqual(self.input_window.cursor.y, 2)
+    self.input_window.add_str("all the time")
+    self.assertEqual(self.input_window.cursor.x, 5)
+    self.assertEqual(self.input_window.cursor.y, 3)
+  
+  def test_backspace_empty(self):
+    self.input_window.backspace()
+    self.assertEqual(self.input_window.cursor.x, 1)
+    self.assertEqual(self.input_window.cursor.y, 1)
 
   def test_backspace(self):
-    pass
+    self.input_window.add_str("yeet")
+    self.input_window.backspace()
+    self.assertEqual(self.input_window.cursor.x, 4)
+  
+  def test_backspace_wrap(self):
+    self.input_window.add_str("hello bob")
+    self.assertEqual(self.input_window.cursor.y, 2)
+    self.input_window.backspace()
+    self.input_window.backspace()
+    self.assertEqual(self.input_window.cursor.x, 8)
+    self.assertEqual(self.input_window.cursor.y, 1)
 
+   
+  #this is hard to test without a specific curses testing library, which we might make ourselves, later.
+  # def test_get_input(self):
+  #   pass
 
+  
 if __name__ == '__main__':
     unittest.main()

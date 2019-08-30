@@ -92,7 +92,10 @@ def handle_client(socket_wrapper, events):
 		except ConnectionResetError:
 			recv_data = None
 			os_error_logging(socket_wrapper)
-
+		except TimeoutError:
+			recv_data = None
+			log_debug_info("time out error, disconnecting: ", socket_wrapper.data.addr)
+	
 		if not recv_data:
 			close_client_connection(socket_wrapper)
 		elif not socket_wrapper.data.handshake_complete:

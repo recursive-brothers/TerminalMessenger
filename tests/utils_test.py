@@ -8,6 +8,9 @@ from client_modules.utils import StringBuilder
 class StringBuilderTest(unittest.TestCase):
     def setUp(self):
         self.string_builder = StringBuilder("hello hi")
+
+    def tearDown(self):
+        pass
     
     def test_append(self):
         self.string_builder._append("yeet")

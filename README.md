@@ -40,7 +40,7 @@ Chat server and client written with Python using sockets library :)
 - [ ] emojis
 - [ ] split terminal for multiple chatrooms
 - [ ] autocomplete for text commands
-- [ ] sidebar with options for interacting with multiple chatrooms
+- [ ] sidebar with metadata for chatroom and options for interacting with multiple chatrooms
 - [x] pretty colors :)
 - [x] add messages for users that connected/disconnected to the chatroom
 - [ ] speech recognition

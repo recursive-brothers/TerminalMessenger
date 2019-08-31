@@ -77,5 +77,10 @@ if __name__ == "__main__":
         logging.debug(traceback.format_exc())
         print("Can't find the server. Are you connected to the internet?")
     
-""" Implement proper exception handling for asyncio as current errors are just
-    being swallowed and the client hangs """
+""" 
+Implement proper exception handling for asyncio as current errors are just
+being swallowed and the client hangs
+
+--> Right now, if you get the timeout error, our program just doesn't do anything except let you type. Very annoying.
+    Probably related to asyncIO eating our exceptions.
+"""

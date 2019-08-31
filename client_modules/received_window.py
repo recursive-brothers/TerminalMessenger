@@ -29,11 +29,14 @@ class ReceivedWindow:
         # - smaxrow: the bottom row of the screen where the drawing ends
         # - smaxcol: the right-hand column of the screen where the drawing ends
         # We subtract 1 from height and width for the same reason the last element of an array is at len - 1
-        self.window.refresh(self.top_left.y, self.top_left.x, 0, 0, self.display_height - 1, self.display_width - 1) #refresh display_height -1 to avoid overlap
+        self.window.refresh(self.top_left.y, self.top_left.x, 0, 0, self.display_height - 1, self.display_width - 1) # refresh display_height -1 to avoid overlap
 
     def scroll(self, lines):
-        if lines < 0 or (self.top_left.y + self.display_height < self.height):
-            self.top_left.y = max(self.top_left.y + lines, 0)
+        # if scrolling up and there is still space to scroll OR scrolling down and there is still space to scroll
+        if (lines < 0 and self.top_left.y > 0) or \
+           (lines > 0 and self.top_left.y + self.display_height < self.height):
+           # this works assuming we do one line at a time--problems if we don't
+            self.top_left.y = self.top_left.y + lines
             self.refresh()
 
     def _paint_str(self, string, color_fmt):

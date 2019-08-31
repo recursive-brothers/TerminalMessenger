@@ -89,7 +89,7 @@ def handle_client(socket_wrapper, events):
 	if events & selectors.EVENT_READ:
 		try:
 			recv_data = client_socket.recv(1024)
-		except ConnectionResetError: #this is the connection reset by peer error.
+		except ConnectionResetError: # this is the connection reset by peer error.
 			recv_data = None
 			os_error_logging(socket_wrapper)
 		except TimeoutError:
@@ -128,9 +128,22 @@ log_debug_info('----------------------ENDING SESSION-------------------------')
 
 """
 ERROR LIST:
-1. connection reset by peer when mitch's computer falls asleep (the server crashes), so this error isn't even handled
+Errors we blindly handle:
+1. connection reset by peer 
+
+Broken:
 2. non utf-8 characters being sent (not handled, can handle this easily by catching it)
 3. Port is already occupied when we try to start server (prev process on port not killed?)
+4. Really weird situation where we get an additional left the chat message long after the first left the chat message for the same leave event(?)
+Relevant logs:
+DEBUG:root:closing connection ('50.236.133.186', 58537) 2019-08-30 17:12:12.738614
+DEBUG:root:client sent -> {"address": 0, "name": "Terminal Messenger", "message": "Mitch has left the chat!"} 2019-08-30 17:12:12.738865
+DEBUG:root:accepted client ('50.236.133.186', 56246) 2019-08-30 17:12:24.880810
+DEBUG:root:client sent -> {"address": 0, "name": "Terminal Messenger", "message": "MUD has joined the chat!"} 2019-08-30 17:12:24.921247
+DEBUG:root:client sent -> {"address": ["50.236.133.186", 56246], "name": "MUD", "message": "yo"} 2019-08-30 17:12:28.399335
+DEBUG:root:time out error, disconnecting:  ('50.236.133.186', 55474) 2019-08-30 17:28:22.762359
+DEBUG:root:closing connection ('50.236.133.186', 55474) 2019-08-30 17:28:22.762534
+DEBUG:root:client sent -> {"address": 0, "name": "Terminal Messenger", "message": "Mitch has left the chat!"} 2019-08-30 17:28:22.762652
 """
 
 """

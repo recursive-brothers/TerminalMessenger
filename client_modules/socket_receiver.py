@@ -16,10 +16,9 @@ def determine_sender(addr):
         sender = SENDER.OTHER
     return sender.value
 
-def format_metadata(received_message):
-    messager = received_message["name"]
+def format_metadata(name):
     curr_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-    return f'{messager}     {curr_time}'
+    return f'{name}     {curr_time}'
 
 async def receive_server_messages(server_socket, received_window):
     while True:
@@ -31,13 +30,13 @@ async def receive_server_messages(server_socket, received_window):
             pass
         if raw_messages:
             message_format = r'{.*?}'
-            json_messages = re.findall(message_format, raw_messages)
+            json_messages  = re.findall(message_format, raw_messages)
 
             for json_msg in json_messages:
                 received_message = json.loads(json_msg)
-                message  = received_message["message"]
-                color_num = determine_sender(received_message['address'])
-                metadata = format_metadata(received_message)
+                message   = received_message["message"]
+                color_num = determine_sender(received_message["address"])
+                metadata  = format_metadata(received_message["name"])
                 received_window.paint_message(metadata, message, color_num)
 
         await asyncio.sleep(SLEEP_TIME)

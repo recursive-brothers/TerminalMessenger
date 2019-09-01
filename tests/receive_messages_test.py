@@ -6,7 +6,7 @@ import datetime
 import json
 BASE_DIR = os.path.join( os.path.dirname( __file__ ), '..' )
 sys.path.append(BASE_DIR)
-from client_modules.socket_receiver import format_metadata, determine_sender
+from client_modules.receive_messages import format_metadata, determine_sender
 from client_modules import utils
 
 

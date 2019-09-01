@@ -4,7 +4,7 @@ import os
 BASE_DIR = os.path.join( os.path.dirname( __file__ ), '..' )
 sys.path.append(BASE_DIR)
 from client_modules.utils import StringBuilder
-from client_modules.user_handling import handle_enter, handle_backspace, handle_scroll, handle_normal_ch
+from client_modules.send_messages import handle_enter, handle_backspace, handle_scroll, handle_normal_ch
 from unittest import mock
 from client_modules.utils import SCROLL_UP, SCROLL_DOWN
 

@@ -6,8 +6,10 @@ import datetime
 import json
 BASE_DIR = os.path.join( os.path.dirname( __file__ ), '..' )
 sys.path.append(BASE_DIR)
-from client_modules.socket_receiver import *
-from client_modules.utils import ADDRESS, SENDER
+from client_modules.socket_receiver import format_metadata, determine_sender
+from client_modules import utils
+
+
 
 utils.ADDRESS = 1
 
@@ -22,15 +24,15 @@ class SocketReceiverTest(unittest.TestCase):
 
     def test_determine_sender_terminal(self):
         sender = determine_sender(0)
-        self.assertEqual(sender, SENDER.TERMINAL.value)
+        self.assertEqual(sender, utils.SENDER.TERMINAL.value)
 
     def test_determine_sender_self(self):
         sender = determine_sender(utils.ADDRESS)
-        self.assertEqual(sender, SENDER.SELF.value)
+        self.assertEqual(sender, utils.SENDER.SELF.value)
 
     def test_determine_sender_other(self):
         sender = determine_sender(2)
-        self.assertEqual(sender, SENDER.OTHER.value)
+        self.assertEqual(sender, utils.SENDER.OTHER.value)
 
     @mock.patch('datetime.datetime')
     def test_format_metadata(self, mock_date):
@@ -42,10 +44,6 @@ class SocketReceiverTest(unittest.TestCase):
         formatted_metadata = format_metadata("Zumaad")
         self.assertEqual(formatted_metadata, f"Zumaad     {formatted_time}")
 
-    @mock.patch('received_window')
-    def test_receive_server_messages(self):
-        pass
-        
 if __name__ == '__main__':
         unittest.main()
 

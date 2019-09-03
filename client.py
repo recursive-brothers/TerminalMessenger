@@ -22,7 +22,7 @@ args = parser.parse_args()
 HOST    = 'terminalmessenger.com'
 PORT    = int(args.port)
 
-async def main(s):
+async def main(s: socket.socket) -> None:
     stdscr = setup_curses()
 
     num_rows, num_cols = stdscr.getmaxyx()
@@ -32,12 +32,12 @@ async def main(s):
     received_window = ReceivedWindow(received_window_rows, num_cols, 0, 1)
     input_window = InputWindow(input_window_rows, num_cols, received_window_rows, 0, 1, 1)
     
-    get_input = asyncio.ensure_future(get_user_input(s, input_window, received_window, num_cols, received_window_rows))
+    get_input = asyncio.ensure_future(get_user_input(s, input_window, received_window))
     get_output = asyncio.ensure_future(receive_server_messages(s, received_window))
     await get_output
     await get_input
 
-def setup_curses():
+def setup_curses(): # -> Window
     stdscr = curses.initscr()
     curses.noecho()
     curses.cbreak()
@@ -48,12 +48,12 @@ def setup_curses():
     curses.init_pair(SENDER.OTHER.value, curses.COLOR_YELLOW, -1)
     return stdscr
 
-def cleanup_curses():
+def cleanup_curses() -> None:
     curses.nocbreak()
     curses.echo()
     curses.endwin()
 
-def handshake(server_socket):
+def handshake(server_socket: socket.socket) -> None:
     ip_and_port = json.loads(server_socket.recv(BUFFER_SIZE).decode())
     utils.ADDRESS = [ip_and_port['address'], ip_and_port['port']]
     server_socket.sendall(args.name.encode())

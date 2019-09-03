@@ -3,10 +3,12 @@ import asyncio
 import logging
 import json
 import re
+import socket
 from . import utils
 from .utils import SENDER, SLEEP_TIME, BUFFER_SIZE
+from .received_window import ReceivedWindow
 
-def determine_sender(addr):
+def determine_sender(addr: str) -> int:
     sender = None
     if addr == utils.ADDRESS:
         sender = SENDER.SELF
@@ -16,11 +18,11 @@ def determine_sender(addr):
         sender = SENDER.OTHER
     return sender.value
 
-def format_metadata(name):
+def format_metadata(name: str) -> str:
     curr_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
     return f'{name}     {curr_time}'
 
-async def receive_server_messages(server_socket, received_window):
+async def receive_server_messages(server_socket: socket.socket, received_window: ReceivedWindow) -> None:
     while True:
         raw_messages = None
         try:

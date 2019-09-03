@@ -1,7 +1,7 @@
 from enum import Enum
-from typing import Any
+from typing import Any, List
 
-ADDRESS = None
+ADDRESS: List[Any] = []
 
 BUFFER_SIZE = 1024
 SLEEP_TIME  = .001

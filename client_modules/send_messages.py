@@ -1,19 +1,21 @@
 import curses
 import asyncio
+import socket
+from .input_window import InputWindow
+from .received_window import ReceivedWindow
 from .utils import SCROLL, SCROLL_UP, SCROLL_DOWN, BACKSPACE, ENTER, SLEEP_TIME, StringBuilder
 
 
-
-def handle_enter(server_socket, accumulated_input, input_window):
+def handle_enter(server_socket: socket.socket, accumulated_input: StringBuilder, input_window: InputWindow) -> None:
     if accumulated_input:
         input_window.clear_text()
         server_socket.sendall(accumulated_input.build().encode())
 
-def handle_backspace(accumulated_input, input_window):
+def handle_backspace(accumulated_input: StringBuilder, input_window: InputWindow):
     accumulated_input.delete(1)
     input_window.backspace()
 
-def handle_scroll(input_window, received_window):
+def handle_scroll(input_window: InputWindow, received_window: ReceivedWindow) -> None:
     input_window.get_input()
     scroll_direction = input_window.get_input()
     if scroll_direction == SCROLL_UP:
@@ -22,13 +24,12 @@ def handle_scroll(input_window, received_window):
         received_window.scroll(1)
 
 # this name is bad
-def handle_normal_ch(ch, accumulated_input, input_window):
-    ch = chr(ch)
+def handle_normal_ch(char_code: int, accumulated_input: StringBuilder, input_window: InputWindow) -> None:
+    ch = chr(char_code)
     accumulated_input += ch
     input_window.add_str(ch)
 
-
-async def get_user_input(server_socket, input_window, received_window, num_rows, num_cols):
+async def get_user_input(server_socket: socket.socket, input_window: InputWindow, received_window: ReceivedWindow) -> None:
     accumulated_input = StringBuilder()
     while True:
         ch = input_window.get_input()

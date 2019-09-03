@@ -4,7 +4,7 @@ from .utils import CursorPosition
 class ReceivedWindow:
     # the pad constructor only takes height and width
     # this constructor also provides initial cursor position
-    def __init__(self, num_rows, num_cols, cursorY, cursorX):
+    def __init__(self, num_rows: int, num_cols: int, cursorY: int, cursorX: int):
         self.cursor = CursorPosition(cursorY, cursorX)
         self.window = curses.newpad(num_rows, num_cols)
         self.width = num_cols
@@ -20,7 +20,7 @@ class ReceivedWindow:
         self.window.nodelay(True)
         self.refresh()
 
-    def refresh(self):
+    def refresh(self) -> None:
         # The refresh method on pads takes the following arguments:
         # - pminrow: the y-coordinate for the top-left corner of the contents in the pad to be displayed
         # - pmincol: the x-coordinate for the top-left corner of the contents in the pad to be displayed
@@ -31,7 +31,7 @@ class ReceivedWindow:
         # We subtract 1 from height and width for the same reason the last element of an array is at len - 1
         self.window.refresh(self.top_left.y, self.top_left.x, 0, 0, self.display_height - 1, self.display_width - 1) # refresh display_height -1 to avoid overlap
 
-    def scroll(self, lines):
+    def scroll(self, lines: int) -> None:
         # if scrolling up and there is still space to scroll OR scrolling down and there is still space to scroll
         if (lines < 0 and self.top_left.y > 0) or \
            (lines > 0 and self.top_left.y + self.display_height < self.height):
@@ -39,14 +39,14 @@ class ReceivedWindow:
             self.top_left.y = self.top_left.y + lines
             self.refresh()
 
-    def _paint_str(self, string, color_fmt):
+    def _paint_str(self, string: str, color_fmt: int) -> None:
         width = self.width - 2
         while string:
             self.window.addstr(self.cursor.y, self.cursor.x, string[:width], color_fmt)
             self.cursor.y += 1
             string = string[width:]
 
-    def paint_message(self, metadata, message, color):
+    def paint_message(self, metadata: str, message: str, color: int) -> None:
         # we have a one character margin on both sides of the received window
         width = self.width - 2
 

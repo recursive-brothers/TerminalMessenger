@@ -51,6 +51,7 @@ Chat server and client written with Python using sockets library :)
 - [ ] admin privileges to starters of group messages/chatrooms, etc.
 - [ ] hidden file with username and password saved to not type in username and password every time (almost like a cookie)
 - [ ] send messages to other endpoints (SMS, Facebook, Slack, etc)
+- [ ] allow a user to specify how long their (or any other, perhaps) messages will persist for
 ### Security ###
 - [ ] encryption
 - [ ] security (blocking ips, etc)

@@ -22,8 +22,8 @@ users schema:
 ```json
 {
     "_id": ObjectId,
-    "name": String,
     "displayName": String,
+    "username": String,
     "password": String
 } 
 ```

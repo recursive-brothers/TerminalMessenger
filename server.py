@@ -9,10 +9,14 @@ import traceback
 import logging
 import datetime
 import json
+from pymongo import MongoClient
 from typing import Any, List, Tuple, Dict
 
-HOST = '0.0.0.0' 
+HOST = "0.0.0.0"
 SERVER_NAME = "Terminal Messenger"
+DB_NAME = "tm_db"
+
+db = None
 
 parser = argparse.ArgumentParser()
 parser.add_argument('port')
@@ -50,8 +54,10 @@ def initialize_master_socket(port: int) -> None:
     client_manager.register(master_socket, selectors.EVENT_READ, data=None)
 
 def setup() -> None:
+    global db
     port = int(args.port)
     initialize_master_socket(port)
+    db = MongoClient()[DB_NAME]
     log_debug_info('listening on', (HOST, port))
 
 def accept_new_client(master_socket) -> None:
@@ -69,12 +75,17 @@ def close_client_connection(socket_wrapper) -> None:
     client_manager.unregister(client_socket)
     client_socket.close()
     list_of_sockets.remove(client_socket)
-    send_to_all(serialize_message(address=0, name=SERVER_NAME, message=f'{closed_client_name} has left the chat!').encode())
+    compose_msg(address, name, f'{closed_client_name} has left the chat!')
 
 def send_to_all(recv_data: bytes) -> None:
-    log_debug_info('client sent ->', recv_data.decode())
     for socket in list_of_sockets:
         socket.send(recv_data)
+
+def compose_msg(address: str, name: str, message: str) -> None:
+    msg = serialize_message(address=address, name=name, message=message)
+    db.messages.insert_one(json.loads(msg))
+    log_debug_info(f'{name} sent -> {msg}')
+    send_to_all(msg.encode())
 
 def os_error_logging(socket_wrapper) -> None:
     log_debug_info("OSERROR OCCURRED: BEGIN LOGGING")
@@ -103,10 +114,9 @@ def handle_client(socket_wrapper, events: int) -> None:
             name = recv_data.decode()
             socket_wrapper.data.name = name
             socket_wrapper.data.handshake_complete = True
-
-            send_to_all(serialize_message(address=0, name=SERVER_NAME, message=f'{name} has joined the chat!').encode())
+            compose_msg(address, name, f'{name} has joined the chat!')
         else:
-            send_to_all(serialize_message(address=socket_wrapper.data.addr, name=socket_wrapper.data.name, message=recv_data.decode()).encode())
+            compose_msg(address, name, recv_data.decode())
 
 def event_loop() -> None:
     while True:
@@ -145,9 +155,4 @@ DEBUG:root:client sent -> {"address": ["50.236.133.186", 56246], "name": "MUD", 
 DEBUG:root:time out error, disconnecting:  ('50.236.133.186', 55474) 2019-08-30 17:28:22.762359
 DEBUG:root:closing connection ('50.236.133.186', 55474) 2019-08-30 17:28:22.762534
 DEBUG:root:client sent -> {"address": 0, "name": "Terminal Messenger", "message": "Mitch has left the chat!"} 2019-08-30 17:28:22.762652
-"""
-
-"""
-1. (MAYBE) track down (some) of the errors in the above list
-2. add documentation for received window and client window
 """

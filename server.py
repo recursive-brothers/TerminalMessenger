@@ -75,7 +75,7 @@ def close_client_connection(socket_wrapper) -> None:
     client_manager.unregister(client_socket)
     client_socket.close()
     list_of_sockets.remove(client_socket)
-    compose_msg(address, name, f'{closed_client_name} has left the chat!')
+    compose_msg(socket_wrapper.data.addr, socket_wrapper.data.name, f'{closed_client_name} has left the chat!')
 
 def send_to_all(recv_data: bytes) -> None:
     for socket in list_of_sockets:

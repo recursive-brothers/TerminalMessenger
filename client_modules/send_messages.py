@@ -1,15 +1,16 @@
 import curses
 import asyncio
 import socket
+import datetime
 from .input_window import InputWindow
 from .received_window import ReceivedWindow
-from .utils import SCROLL, SCROLL_UP, SCROLL_DOWN, BACKSPACE, ENTER, SLEEP_TIME, StringBuilder
-
+from .utils import SCROLL, SCROLL_UP, SCROLL_DOWN, BACKSPACE, ENTER, SLEEP_TIME, StringBuilder, serialize_message
 
 def handle_enter(server_socket: socket.socket, accumulated_input: StringBuilder, input_window: InputWindow) -> None:
     if accumulated_input:
+        time = datetime.datetime.now()
         input_window.clear_text()
-        server_socket.sendall(accumulated_input.build().encode())
+        server_socket.sendall(serialize_message(message=accumulated_input.build(), time=str(time)).encode())
 
 def handle_backspace(accumulated_input: StringBuilder, input_window: InputWindow):
     accumulated_input.delete(1)

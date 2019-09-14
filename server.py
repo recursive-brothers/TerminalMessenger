@@ -1,5 +1,11 @@
 #!/usr/bin/python3
 
+import os
+import sys
+
+BASE_DIR = os.path.dirname(__file__)
+sys.path.append(BASE_DIR)
+
 import selectors
 import socket
 import types
@@ -10,6 +16,7 @@ import logging
 import datetime
 import json
 from pymongo import MongoClient
+from client_modules.utils import serialize_message
 from typing import Any, List, Tuple, Dict
 
 HOST = "0.0.0.0"
@@ -42,9 +49,6 @@ def log_debug_info(*args: Any) -> None:
     str_args = [str(arg) for arg in args]
     str_args.append(str(datetime.datetime.now()))
     logging.debug(' '.join(str_args))
-
-def serialize_message(**kwargs: Any) -> str:
-    return json.dumps(kwargs)
 
 def initialize_master_socket(port: int) -> None:
     master_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -82,7 +86,10 @@ def send_to_all(recv_data: bytes) -> None:
         socket.send(recv_data)
 
 def compose_msg(address: str, name: str, message: str) -> None:
-    msg = serialize_message(address=address, name=name, message=message)
+    recv_msg = json.loads(message)
+    time = datetime.datetime.strptime(recv_msg['time'], '%Y-%m-%d %H:%M:%S.%f')
+
+    msg = serialize_message(address=address, name=name, message=recv_msg['message'], time=time)
     db.messages.insert_one(json.loads(msg))
     log_debug_info(f'{name} sent -> {msg}')
     send_to_all(msg.encode())
@@ -155,4 +162,10 @@ DEBUG:root:client sent -> {"address": ["50.236.133.186", 56246], "name": "MUD", 
 DEBUG:root:time out error, disconnecting:  ('50.236.133.186', 55474) 2019-08-30 17:28:22.762359
 DEBUG:root:closing connection ('50.236.133.186', 55474) 2019-08-30 17:28:22.762534
 DEBUG:root:client sent -> {"address": 0, "name": "Terminal Messenger", "message": "Mitch has left the chat!"} 2019-08-30 17:28:22.762652
+"""
+
+"""
+Bug: people communicating between time zones get weird times for each other's messages, not ones
+consistent with their time zone.
+Solution: store milliseconds ('unix time') in mongo and convert to timezone on client
 """

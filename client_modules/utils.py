@@ -50,3 +50,7 @@ class CursorPosition:
     def __init__(self, startY: int, startX: int):
         self.y = startY
         self.x = startX
+
+def serialize_message(**kwargs: Any) -> str:
+    return json.dumps(kwargs)
+

@@ -89,8 +89,10 @@ def compose_msg(address: str, name: str, message: str) -> None:
     recv_msg = json.loads(message)
     time = datetime.datetime.strptime(recv_msg['time'], '%Y-%m-%d %H:%M:%S.%f')
 
-    msg = serialize_message(address=address, name=name, message=recv_msg['message'], time=time)
-    db.messages.insert_one(json.loads(msg))
+    db_record = {'userId': address, 'message': recv_msg['message'], 'timestamp': time}
+
+    msg = serialize_message(address=address, name=name, message=recv_msg['message'], time=recv_msg['time'])
+    db.messages.insert_one(db_record)
     log_debug_info(f'{name} sent -> {msg}')
     send_to_all(msg.encode())
 

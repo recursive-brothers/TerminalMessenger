@@ -122,7 +122,8 @@ def handle_client(socket_wrapper, events: int) -> None:
             socket_wrapper.data.name = name
             socket_wrapper.data.handshake_complete = True
 
-            msg = serialize_message(message=f'{name} has joined the chat!', time=datetime.datetime.now())
+            time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
+            msg = serialize_message(message=f'{name} has joined the chat!', time=time)
             compose_msg(0, name, msg)
         else:
             compose_msg(socket_wrapper.data.addr, socket_wrapper.data.name, recv_data.decode())

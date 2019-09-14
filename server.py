@@ -114,9 +114,9 @@ def handle_client(socket_wrapper, events: int) -> None:
             name = recv_data.decode()
             socket_wrapper.data.name = name
             socket_wrapper.data.handshake_complete = True
-            compose_msg(address, name, f'{name} has joined the chat!')
+            compose_msg(0, name, f'{name} has joined the chat!')
         else:
-            compose_msg(address, name, recv_data.decode())
+            compose_msg(socket_wrapper.data.addr, name, recv_data.decode())
 
 def event_loop() -> None:
     while True:

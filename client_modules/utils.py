@@ -52,6 +52,38 @@ class CursorPosition:
         self.y = startY
         self.x = startX
 
+class Message:
+    def __init__(self, 
+
 def serialize_message(**kwargs: Any) -> str:
     return json.dumps(kwargs)
 
+
+# client sends: { message: str, time: timestamp, username: str }
+# the server sends: { message: str, name: str, address: str, time: timestamp } 
+
+# database is going to contain: 
+# - username
+# - display name
+# - message contents
+# - timestamp
+
+# the format we're going to use for now is:
+# - in **theory**, the client could know about its own username/display name (which is how we will configure it)
+# - it knows the timestamp
+# - it knows the contents
+
+# - it doesn't know the username, for now--because we have no concept of user/session persistence
+
+# the format that the server will send is:
+# - the message, of course
+# - the display name of the sender
+# - the timestamp
+# - the address
+
+# two methods:
+# 1. to_json
+# 2. Class.parse_json
+
+# if there's ever a situation where we don't receive address, just set it to null
+# generate_cql method because Mitch is a complete god

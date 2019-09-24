@@ -15,7 +15,7 @@ import traceback
 import logging
 import datetime
 import json
-from pymongo import MongoClient
+from cassandra.cluster import Cluster
 from client_modules.utils import serialize_message
 from typing import Any, List, Tuple, Dict
 
@@ -57,11 +57,14 @@ def initialize_master_socket(port: int) -> None:
     master_socket.setblocking(False)
     client_manager.register(master_socket, selectors.EVENT_READ, data=None)
 
-def setup() -> None:
+def initialize_db() -> None:
     global db
+    db = Cluster().connect(DB_NAME)
+
+def setup() -> None:
     port = int(args.port)
+    initialize_db()
     initialize_master_socket(port)
-    db = MongoClient()[DB_NAME]
     log_debug_info('listening on', (HOST, port))
 
 def accept_new_client(master_socket) -> None:
@@ -89,10 +92,10 @@ def compose_msg(address: str, name: str, message: str) -> None:
     recv_msg = json.loads(message)
     time = datetime.datetime.strptime(recv_msg['time'], '%Y-%m-%d %H:%M:%S.%f')
 
-    db_record = {'userId': address, 'message': recv_msg['message'], 'timestamp': time}
+    # db_record = {'userId': address, 'message': recv_msg['message'], 'timestamp': time}
 
-    msg = serialize_message(address=address, name=name, message=recv_msg['message'], time=recv_msg['time'])
-    db.messages.insert_one(db_record)
+    # msg = serialize_message(address=address, name=name, message=recv_msg['message'], time=recv_msg['time'])
+    # db.messages.insert_one(db_record)
     log_debug_info(f'{name} sent -> {msg}')
     send_to_all(msg.encode())
 

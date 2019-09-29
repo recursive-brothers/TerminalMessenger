@@ -5,7 +5,7 @@ import json
 import re
 import socket
 from . import utils
-from .utils import SENDER, SLEEP_TIME, BUFFER_SIZE
+from .utils import SENDER, SLEEP_TIME, BUFFER_SIZE, Message
 from .received_window import ReceivedWindow
 
 def determine_sender(addr: str) -> int:
@@ -18,9 +18,8 @@ def determine_sender(addr: str) -> int:
         sender = SENDER.OTHER
     return sender.value
 
-def format_metadata(name: str, time: str) -> str:
-    curr_time_obj = datetime.datetime.strptime(time, '%Y-%m-%d %H:%M:%S.%f')
-    curr_time = curr_time_obj.strftime("%Y-%m-%d %H:%M")
+def format_metadata(name: str, time: datetime.datetime) -> str:
+    curr_time = time.strftime("%Y-%m-%d %H:%M")
     return f'{name}     {curr_time}'
 
 async def receive_server_messages(server_socket: socket.socket, received_window: ReceivedWindow) -> None:
@@ -36,10 +35,10 @@ async def receive_server_messages(server_socket: socket.socket, received_window:
             json_messages  = re.findall(message_format, raw_messages)
 
             for json_msg in json_messages:
-                received_message = json.loads(json_msg)
-                message   = received_message["message"]
-                color_num = determine_sender(received_message["address"])
-                metadata  = format_metadata(received_message["name"], received_message["time"])
+                received_message = Message.from_json(json_msg)
+                message   = received_message.msg
+                color_num = determine_sender(received_message.addr)
+                metadata  = format_metadata(received_message.name, received_message.time)
                 received_window.paint_message(metadata, message, color_num)
 
         await asyncio.sleep(SLEEP_TIME)

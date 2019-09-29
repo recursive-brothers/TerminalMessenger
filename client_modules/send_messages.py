@@ -4,13 +4,13 @@ import socket
 import datetime
 from .input_window import InputWindow
 from .received_window import ReceivedWindow
-from .utils import SCROLL, SCROLL_UP, SCROLL_DOWN, BACKSPACE, ENTER, SLEEP_TIME, StringBuilder, serialize_message
+from .utils import SCROLL, SCROLL_UP, SCROLL_DOWN, BACKSPACE, ENTER, SLEEP_TIME, StringBuilder, Message
 
 def handle_enter(server_socket: socket.socket, accumulated_input: StringBuilder, input_window: InputWindow) -> None:
     if accumulated_input:
         input_window.clear_text()
-
-        server_socket.sendall(serialize_message(message=accumulated_input.build(), time=str(time)).encode())
+        serialized_message = Message(accumulated_input.build(), datetime.datetime.now()).to_json()
+        server_socket.sendall(serialized_message.encode())
 
 def handle_backspace(accumulated_input: StringBuilder, input_window: InputWindow):
     accumulated_input.delete(1)

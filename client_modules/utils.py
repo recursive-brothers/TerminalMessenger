@@ -1,4 +1,5 @@
 import json
+import datetime
 from enum import Enum
 from typing import Any, List
 
@@ -53,37 +54,25 @@ class CursorPosition:
         self.x = startX
 
 class Message:
-    def __init__(self, 
+    def __init__(self, msg: str, time: datetime.datetime, name: str = "", addr: str = ""):
+        self.msg  = msg
+        self.name = name
+        self.time = time
+        self.addr = addr
 
-def serialize_message(**kwargs: Any) -> str:
-    return json.dumps(kwargs)
+    def to_json(self) -> str:
+        time_str = self.time.strftime("%Y-%m-%d %H:%M:%S.%f")
+        return Message.serialize_json(message=self.msg, name=self.name, time=time_str, addr=self.addr)
 
+    def generate_cql(self):
+        pass
 
-# client sends: { message: str, time: timestamp, username: str }
-# the server sends: { message: str, name: str, address: str, time: timestamp } 
+    @staticmethod
+    def from_json(json_msg: str) -> Message:
+        message = json.loads(json_msg)
+        time = datetime.datetime.strptime(message["time"], '%Y-%m-%d %H:%M:%S.%f') 
+        return Message(message["message"], time, message["name"], message.get("address", ""))
 
-# database is going to contain: 
-# - username
-# - display name
-# - message contents
-# - timestamp
-
-# the format we're going to use for now is:
-# - in **theory**, the client could know about its own username/display name (which is how we will configure it)
-# - it knows the timestamp
-# - it knows the contents
-
-# - it doesn't know the username, for now--because we have no concept of user/session persistence
-
-# the format that the server will send is:
-# - the message, of course
-# - the display name of the sender
-# - the timestamp
-# - the address
-
-# two methods:
-# 1. to_json
-# 2. Class.parse_json
-
-# if there's ever a situation where we don't receive address, just set it to null
-# generate_cql method because Mitch is a complete god
+    @staticmethod
+    def serialize_json(**kwargs: Any) -> str:
+        return json.dumps(kwargs)

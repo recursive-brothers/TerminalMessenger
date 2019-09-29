@@ -16,7 +16,7 @@ import logging
 import datetime
 import json
 from cassandra.cluster import Cluster
-from client_modules.utils import serialize_message, Message
+from client_modules.utils import Message
 from typing import Any, List, Tuple, Dict
 
 HOST = "0.0.0.0"

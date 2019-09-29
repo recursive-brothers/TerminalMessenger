@@ -69,9 +69,9 @@ class Message:
     def generate_cql(self):
         return f'insert into messages (chatroom_id, messaged_at, message_id, contents, display_name, username) \
           values ({CHAT_ROOM_ID}, {self.time}, uuid(), {self.msg}, {self.name}, {self.name})'
-          
+
     @staticmethod
-    def from_json(json_msg: str) -> Message:
+    def from_json(json_msg: str) -> 'Message':
         message = json.loads(json_msg)
         time = datetime.datetime.strptime(message["time"], '%Y-%m-%d %H:%M:%S.%f') 
         return Message(message["message"], time, message["name"], message.get("address", ""))

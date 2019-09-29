@@ -1,7 +1,7 @@
 import json
 import datetime
 from enum import Enum
-from typing import Any, List
+from typing import Any, List, Union, Tuple
 
 ADDRESS: List[Any] = []
 
@@ -15,6 +15,8 @@ SCROLL_UP   = 65
 SCROLL_DOWN = 66
 
 RECEIVED_WINDOW_RATIO = .85
+
+CHAT_ROOM_ID = 'c7532c20-e301-11e9-aaef-0800200c9a66'
 
 class SENDER(Enum):
     SELF     = 1
@@ -54,7 +56,7 @@ class CursorPosition:
         self.x = startX
 
 class Message:
-    def __init__(self, msg: str, time: datetime.datetime, name: str = "", addr: str = ""):
+    def __init__(self, msg: str, time: datetime.datetime, name: str = "", addr: Union[int, Tuple] = 0):
         self.msg  = msg
         self.name = name
         self.time = time
@@ -65,8 +67,9 @@ class Message:
         return Message.serialize_json(message=self.msg, name=self.name, time=time_str, addr=self.addr)
 
     def generate_cql(self):
-        pass
-
+        return f'insert into messages (chatroom_id, messaged_at, message_id, contents, display_name, username) \
+          values ({CHAT_ROOM_ID}, {self.time}, uuid(), {self.msg}, {self.name}, {self.name})'
+          
     @staticmethod
     def from_json(json_msg: str) -> Message:
         message = json.loads(json_msg)

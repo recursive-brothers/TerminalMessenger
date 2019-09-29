@@ -16,14 +16,15 @@ import logging
 import datetime
 import json
 from cassandra.cluster import Cluster
-from client_modules.utils import serialize_message
+from client_modules.utils import serialize_message, Message
 from typing import Any, List, Tuple, Dict
 
 HOST = "0.0.0.0"
 SERVER_NAME = "Terminal Messenger"
 DB_NAME = "tm_db"
 
-db = None
+
+db: Any = None
 
 parser = argparse.ArgumentParser()
 parser.add_argument('port')
@@ -43,7 +44,6 @@ class ClientInformation:
         self.addr = addr
         self.handshake_complete = False
         self.name = None
-
 
 def log_debug_info(*args: Any) -> None:
     str_args = [str(arg) for arg in args]
@@ -82,22 +82,12 @@ def close_client_connection(socket_wrapper) -> None:
     client_manager.unregister(client_socket)
     client_socket.close()
     list_of_sockets.remove(client_socket)
-    compose_msg(socket_wrapper.data.addr, socket_wrapper.data.name, f'{closed_client_name} has left the chat!')
+    msg = Message(f'{closed_client_name} has left the chat!', datetime.datetime.now(), SERVER_NAME, 0)
+    route_message(msg)
 
 def send_to_all(recv_data: bytes) -> None:
     for socket in list_of_sockets:
         socket.send(recv_data)
-
-def compose_msg(address: str, name: str, message: str) -> None:
-    recv_msg = json.loads(message)
-    time = datetime.datetime.strptime(recv_msg['time'], '%Y-%m-%d %H:%M:%S.%f')
-
-    # db_record = {'userId': address, 'message': recv_msg['message'], 'timestamp': time}
-
-    # msg = serialize_message(address=address, name=name, message=recv_msg['message'], time=recv_msg['time'])
-    # db.messages.insert_one(db_record)
-    log_debug_info(f'{name} sent -> {msg}')
-    send_to_all(msg.encode())
 
 def os_error_logging(socket_wrapper) -> None:
     log_debug_info("OSERROR OCCURRED: BEGIN LOGGING")
@@ -106,6 +96,9 @@ def os_error_logging(socket_wrapper) -> None:
     log_debug_info(traceback.format_exc())
     log_debug_info("OSERROR OCCURRED: ENDING LOGGING")
 
+def route_message(msg: Message):
+    db.execute(msg.generate_cql())
+    send_to_all(msg.to_json().encode())
 
 def handle_client(socket_wrapper, events: int) -> None:
     recv_data = None 
@@ -119,19 +112,19 @@ def handle_client(socket_wrapper, events: int) -> None:
         except TimeoutError:
             recv_data = None
             log_debug_info("time out error, disconnecting: ", socket_wrapper.data.addr)
-	
+
         if not recv_data:
             close_client_connection(socket_wrapper)
+            return
         elif not socket_wrapper.data.handshake_complete:
             name = recv_data.decode()
             socket_wrapper.data.name = name
             socket_wrapper.data.handshake_complete = True
-
-            time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
-            msg = serialize_message(message=f'{name} has joined the chat!', time=time)
-            compose_msg(0, name, msg)
+            msg = Message(f'{name} has joined the chat!', datetime.datetime.now(), name, 0)
         else:
-            compose_msg(socket_wrapper.data.addr, socket_wrapper.data.name, recv_data.decode())
+            msg = Message(recv_data.decode(), datetime.datetime.now(), socket_wrapper.data.name, socket_wrapper.data.addr)
+        
+        route_message(msg)
 
 def event_loop() -> None:
     while True:

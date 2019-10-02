@@ -1,5 +1,6 @@
 import json
 import datetime
+from uuid import uuid1
 from enum import Enum
 from typing import Any, List, Union, Tuple
 
@@ -66,9 +67,11 @@ class Message:
         time_str = self.time.strftime("%Y-%m-%d %H:%M:%S.%f")
         return Message.serialize_json(message=self.msg, name=self.name, time=time_str, addr=self.addr)
 
-    def generate_cql(self):
-        return f'insert into messages (chatroom_id, messaged_at, message_id, contents, display_name, username) \
-          values ({CHAT_ROOM_ID}, {self.time}, uuid(), {self.msg}, {self.name}, {self.name})'
+    def generate_cql(self) -> Tuple:
+       return ("""
+               insert into messages (chatroom_id, messaged_at, message_id, contents, display_name, username)
+               values (%s, %s, %s, %s, %s, %s)
+               """, (uuid1(), self.time, self.msg, self.name, self.name))
 
     @staticmethod
     def from_json(json_msg: str) -> 'Message':

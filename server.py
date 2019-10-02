@@ -97,7 +97,8 @@ def os_error_logging(socket_wrapper) -> None:
     log_debug_info("OSERROR OCCURRED: ENDING LOGGING")
 
 def route_message(msg: Message):
-    db.execute(msg.generate_cql())
+    query, values = msg.generate_cql()
+    db.execute(query, values)
     send_to_all(msg.to_json().encode())
 
 def handle_client(socket_wrapper, events: int) -> None:

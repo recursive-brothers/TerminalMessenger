@@ -77,7 +77,7 @@ class Message:
     def from_json(json_msg: str) -> 'Message':
         message = json.loads(json_msg)
         time = datetime.datetime.strptime(message["time"], '%Y-%m-%d %H:%M:%S.%f') 
-        return Message(message["message"], time, message["name"], message.get("address", ""))
+        return Message(message["message"], time, message["name"], message.get("addr", ""))
 
     @staticmethod
     def serialize_json(**kwargs: Any) -> str:

@@ -7,8 +7,9 @@ import socket
 from . import utils
 from .utils import SENDER, SLEEP_TIME, BUFFER_SIZE, Message
 from .received_window import ReceivedWindow
+from typing import List, Union
 
-def determine_sender(addr: str) -> int:
+def determine_sender(addr: Union[List, int]) -> int:
     sender = None
     if addr == utils.ADDRESS:
         sender = SENDER.SELF

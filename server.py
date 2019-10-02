@@ -123,7 +123,9 @@ def handle_client(socket_wrapper, events: int) -> None:
             socket_wrapper.data.handshake_complete = True
             msg = Message(f'{name} has joined the chat!', datetime.datetime.now(), name, 0)
         else:
-            msg = Message(recv_data.decode(), datetime.datetime.now(), socket_wrapper.data.name, socket_wrapper.data.addr)
+            msg = Message.from_json(recv_data.decode())
+            msg.name = socket_wrapper.data.name
+            msg.addr = socket_wrapper.data.addr
         
         route_message(msg)
 

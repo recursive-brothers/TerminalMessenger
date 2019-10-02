@@ -15,6 +15,7 @@ import traceback
 import logging
 import datetime
 import json
+import re
 from cassandra.cluster import Cluster
 from client_modules.utils import Message
 from typing import Any, List, Tuple, Dict

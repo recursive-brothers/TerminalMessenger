@@ -32,8 +32,7 @@ async def receive_server_messages(server_socket: socket.socket, received_window:
         except:
             pass
         if raw_messages:
-            message_format = r'{.*?}'
-            json_messages  = re.findall(message_format, raw_messages)
+            json_messages  = re.findall(r'{.*?}', raw_messages)
 
             for json_msg in json_messages:
                 received_message = Message.from_json(json_msg)

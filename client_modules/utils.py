@@ -71,7 +71,7 @@ class Message:
        return ("""
                insert into messages (chatroom_id, messaged_at, message_id, contents, display_name, username)
                values (%s, %s, %s, %s, %s, %s)
-               """, (uuid1(), self.time, self.msg, self.name, self.name))
+               """, (uuid1(), self.time, uuid1(), self.msg, self.name, self.name))
 
     @staticmethod
     def from_json(json_msg: str) -> 'Message':

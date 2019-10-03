@@ -125,13 +125,14 @@ def handle_client(socket_wrapper, events: int) -> None:
             name = recv_data.decode()
             socket_wrapper.data.name = name
             socket_wrapper.data.handshake_complete = True
-            msg = Message(f'{name} has joined the chat!', datetime.datetime.utcnow(), name, 0)
+            msg = Message(f'{name} has joined the chat!', datetime.datetime.utcnow(), SERVER_NAME, 0)
             route_message(msg)
         else:
             raw_messages = recv_data.decode()
             json_messages = re.findall(r'{.*?}', raw_messages)
             for json_msg in json_messages:
                 msg = Message.from_json(json_msg)
+                msg.time = datetime.datetime.utcnow()
                 msg.name = socket_wrapper.data.name
                 msg.addr = socket_wrapper.data.addr
                 route_message(msg)

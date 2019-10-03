@@ -16,14 +16,16 @@ import logging
 import datetime
 import json
 import re
+import uuid
 from cassandra.cluster import Cluster
 from client_modules.utils import Message
 from typing import Any, List, Tuple, Dict
 
+
 HOST = "0.0.0.0"
 SERVER_NAME = "Terminal Messenger"
 DB_NAME = "tm_db"
-CHAT_ROOM_ID = 'c7532c20-e301-11e9-aaef-0800200c9a66'
+CHAT_ROOM_ID = uuid.UUID('c7532c20-e301-11e9-aaef-0800200c9a66')
 
 
 db: Any = None

@@ -3,6 +3,9 @@ import datetime
 from uuid import uuid1
 from enum import Enum
 from typing import Any, List, Union, Tuple
+from tzlocal import get_localzone
+
+TIMEZONE: Any = get_localzone()
 
 ADDRESS: List[Any] = []
 

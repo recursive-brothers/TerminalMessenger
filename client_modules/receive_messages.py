@@ -9,6 +9,8 @@ from .utils import SENDER, SLEEP_TIME, BUFFER_SIZE, Message
 from .received_window import ReceivedWindow
 from typing import List, Union
 
+
+
 def determine_sender(addr: Union[List, int]) -> int:
     sender = None
     if addr == utils.ADDRESS:
@@ -20,7 +22,7 @@ def determine_sender(addr: Union[List, int]) -> int:
     return sender.value
 
 def format_metadata(name: str, time: datetime.datetime) -> str:
-    curr_time = time.strftime("%Y-%m-%d %H:%M")
+    curr_time = time.replace(tzinfo=datetime.timezone.utc).astimezone(utils.TIMEZONE).strftime("%Y-%m-%d %H:%M")
     return f'{name}     {curr_time}'
 
 async def receive_server_messages(server_socket: socket.socket, received_window: ReceivedWindow) -> None:

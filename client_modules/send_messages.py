@@ -9,7 +9,7 @@ from .utils import SCROLL, SCROLL_UP, SCROLL_DOWN, BACKSPACE, ENTER, SLEEP_TIME,
 def handle_enter(server_socket: socket.socket, accumulated_input: StringBuilder, input_window: InputWindow) -> None:
     if accumulated_input:
         input_window.clear_text()
-        serialized_message = Message(accumulated_input.build(), datetime.datetime.now()).to_json()
+        serialized_message = Message(accumulated_input.build(), datetime.datetime.utcnow()).to_json()
         server_socket.sendall(serialized_message.encode())
 
 def handle_backspace(accumulated_input: StringBuilder, input_window: InputWindow):

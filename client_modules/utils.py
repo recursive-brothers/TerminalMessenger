@@ -20,7 +20,7 @@ SCROLL_DOWN = 66
 
 RECEIVED_WINDOW_RATIO = .85
 
-CHAT_ROOM_ID = 'c7532c20-e301-11e9-aaef-0800200c9a66'
+
 
 class SENDER(Enum):
     SELF     = 1
@@ -60,14 +60,14 @@ class CursorPosition:
         self.x = startX
 
 class Message:
-    def __init__(self, msg: str, time: datetime.datetime, name: str = "", addr: Union[int, Tuple] = 0):
+    def __init__(self, msg: str, time: Any  = '', name: str = "", addr: Union[int, Tuple] = 0):
         self.msg  = msg
         self.name = name
         self.time = time
         self.addr = addr
 
     def to_json(self) -> str:
-        time_str = self.time.strftime("%Y-%m-%d %H:%M:%S.%f")
+        time_str = self.time.strftime("%Y-%m-%d %H:%M:%S.%f") if self.time else ''
         return Message.serialize_json(message=self.msg, name=self.name, time=time_str, addr=self.addr)
 
     def generate_cql(self, chatroom_id) -> Tuple:
@@ -79,7 +79,7 @@ class Message:
     @staticmethod
     def from_json(json_msg: str) -> 'Message':
         message = json.loads(json_msg)
-        time = datetime.datetime.strptime(message["time"], '%Y-%m-%d %H:%M:%S.%f') 
+        time = datetime.datetime.strptime(message["time"], '%Y-%m-%d %H:%M:%S.%f') if message['time'] else '' 
         return Message(message["message"], time, message["name"], message.get("addr", ""))
 
     @staticmethod

@@ -70,11 +70,11 @@ class Message:
         time_str = self.time.strftime("%Y-%m-%d %H:%M:%S.%f")
         return Message.serialize_json(message=self.msg, name=self.name, time=time_str, addr=self.addr)
 
-    def generate_cql(self) -> Tuple:
+    def generate_cql(self, chatroom_id) -> Tuple:
        return ("""
                insert into messages (chatroom_id, messaged_at, message_id, contents, display_name, username)
                values (%s, %s, %s, %s, %s, %s)
-               """, (uuid1(), self.time, uuid1(), self.msg, self.name, self.name))
+               """, (chatroom_id, self.time, uuid1(), self.msg, self.name, self.name))
 
     @staticmethod
     def from_json(json_msg: str) -> 'Message':

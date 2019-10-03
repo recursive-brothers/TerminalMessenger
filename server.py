@@ -23,6 +23,7 @@ from typing import Any, List, Tuple, Dict
 HOST = "0.0.0.0"
 SERVER_NAME = "Terminal Messenger"
 DB_NAME = "tm_db"
+CHAT_ROOM_ID = 'c7532c20-e301-11e9-aaef-0800200c9a66'
 
 
 db: Any = None
@@ -98,7 +99,7 @@ def os_error_logging(socket_wrapper) -> None:
     log_debug_info("OSERROR OCCURRED: ENDING LOGGING")
 
 def route_message(msg: Message):
-    query, values = msg.generate_cql()
+    query, values = msg.generate_cql(CHAT_ROOM_ID)
     db.execute(query, values)
     send_to_all(msg.to_json().encode())
 

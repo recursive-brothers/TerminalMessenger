@@ -99,8 +99,12 @@ def os_error_logging(socket_wrapper) -> None:
     log_debug_info(traceback.format_exc())
     log_debug_info("OSERROR OCCURRED: ENDING LOGGING")
 
-# def load_messages(socket_wrapper) -> None:
-#     results = db.execute("select contents, messaged_at, display_name, username from messages limit 10") 
+def load_messages(socket_wrapper) -> None:
+    results = db.execute("select contents, messaged_at, display_name, username from messages limit 10") 
+    json_messages = []
+    for result in results:
+        json_messages.append(Message(result.contents, time=result.messaged_at, name=result.display_name, user=result.username).to_json())
+    socket_wrapper.fileobj.send(''.join(json_messages).encode())
 
 def route_message(msg: Message):
     query, values = msg.generate_cql(CHAT_ROOM_ID)
@@ -127,6 +131,7 @@ def handle_client(socket_wrapper, events: int) -> None:
             name = recv_data.decode()
             socket_wrapper.data.name = name
             socket_wrapper.data.handshake_complete = True
+            load_messages(socket_wrapper)
             msg = Message(f'{name} has joined the chat!', datetime.datetime.utcnow(), SERVER_NAME, SERVER_NAME)
             route_message(msg)
         else:

@@ -104,7 +104,7 @@ def load_messages(socket_wrapper) -> None:
     json_messages = []
     for result in results:
         json_messages.append(Message(result.contents, time=result.messaged_at, name=result.display_name, user=result.username).to_json())
-    socket_wrapper.fileobj.send(''.join(json_messages).encode())
+    socket_wrapper.fileobj.send(''.join(reversed(json_messages)).encode())
 
 def route_message(msg: Message):
     query, values = msg.generate_cql(CHAT_ROOM_ID)

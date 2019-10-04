@@ -74,7 +74,6 @@ def setup() -> None:
 def accept_new_client(master_socket) -> None:
     client_socket, addr = master_socket.accept()
     client_socket.setblocking(False)
-    client_socket.send(Message.serialize_json(address=addr[0],port=addr[1]).encode())
     client_manager.register(client_socket, selectors.EVENT_READ | selectors.EVENT_WRITE, data = ClientInformation(addr))
     list_of_sockets.append(client_socket)
     log_debug_info('accepted client', addr)
@@ -86,7 +85,7 @@ def close_client_connection(socket_wrapper) -> None:
     client_manager.unregister(client_socket)
     client_socket.close()
     list_of_sockets.remove(client_socket)
-    msg = Message(f'{closed_client_name} has left the chat!', datetime.datetime.now(), SERVER_NAME, 0)
+    msg = Message(f'{closed_client_name} has left the chat!', datetime.datetime.utcnow(), SERVER_NAME, SERVER_NAME)
     route_message(msg)
 
 def send_to_all(recv_data: bytes) -> None:
@@ -99,6 +98,9 @@ def os_error_logging(socket_wrapper) -> None:
     log_debug_info('count of clients', len(list_of_sockets))
     log_debug_info(traceback.format_exc())
     log_debug_info("OSERROR OCCURRED: ENDING LOGGING")
+
+# def load_messages(socket_wrapper) -> None:
+#     results = db.execute("select contents, messaged_at, display_name, username from messages limit 10") 
 
 def route_message(msg: Message):
     query, values = msg.generate_cql(CHAT_ROOM_ID)
@@ -125,7 +127,7 @@ def handle_client(socket_wrapper, events: int) -> None:
             name = recv_data.decode()
             socket_wrapper.data.name = name
             socket_wrapper.data.handshake_complete = True
-            msg = Message(f'{name} has joined the chat!', datetime.datetime.utcnow(), SERVER_NAME, 0)
+            msg = Message(f'{name} has joined the chat!', datetime.datetime.utcnow(), SERVER_NAME, SERVER_NAME)
             route_message(msg)
         else:
             raw_messages = recv_data.decode()
@@ -133,8 +135,6 @@ def handle_client(socket_wrapper, events: int) -> None:
             for json_msg in json_messages:
                 msg = Message.from_json(json_msg)
                 msg.time = datetime.datetime.utcnow()
-                msg.name = socket_wrapper.data.name
-                msg.addr = socket_wrapper.data.addr
                 route_message(msg)
 
 def event_loop() -> None:

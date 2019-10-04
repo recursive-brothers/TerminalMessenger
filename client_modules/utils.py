@@ -7,7 +7,7 @@ from tzlocal import get_localzone
 
 TIMEZONE: Any = get_localzone()
 
-ADDRESS: List[Any] = []
+USERNAME: str = ""
 
 BUFFER_SIZE = 1024
 SLEEP_TIME  = .001
@@ -60,27 +60,27 @@ class CursorPosition:
         self.x = startX
 
 class Message:
-    def __init__(self, msg: str, time: Any  = '', name: str = "", addr: Union[int, Tuple] = 0):
+    def __init__(self, msg: str, time: Any  = '', name: str = "", user: str = ""):
         self.msg  = msg
         self.name = name
         self.time = time
-        self.addr = addr
+        self.user = user
 
     def to_json(self) -> str:
         time_str = self.time.strftime("%Y-%m-%d %H:%M:%S.%f") if self.time else ''
-        return Message.serialize_json(message=self.msg, name=self.name, time=time_str, addr=self.addr)
+        return Message.serialize_json(message=self.msg, name=self.name, time=time_str, user=self.user)
 
     def generate_cql(self, chatroom_id) -> Tuple:
        return ("""
                insert into messages (chatroom_id, messaged_at, message_id, contents, display_name, username)
                values (%s, %s, %s, %s, %s, %s)
-               """, (chatroom_id, self.time, uuid1(), self.msg, self.name, self.name))
+               """, (chatroom_id, self.time, uuid1(), self.msg, self.name, self.user))
 
     @staticmethod
     def from_json(json_msg: str) -> 'Message':
         message = json.loads(json_msg)
         time = datetime.datetime.strptime(message["time"], '%Y-%m-%d %H:%M:%S.%f') if message['time'] else '' 
-        return Message(message["message"], time, message["name"], message.get("addr", ""))
+        return Message(message["message"], time, message["name"], message.get("user", ""))
 
     @staticmethod
     def serialize_json(**kwargs: Any) -> str:

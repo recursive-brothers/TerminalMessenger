@@ -11,11 +11,11 @@ from typing import List, Union
 
 
 
-def determine_sender(addr: Union[List, int]) -> int:
+def determine_sender(user: str) -> int:
     sender = None
-    if addr == utils.ADDRESS:
+    if user == utils.USERNAME:
         sender = SENDER.SELF
-    elif addr == 0:
+    elif user == "Terminal Messenger":
         sender = SENDER.TERMINAL
     else: 
         sender = SENDER.OTHER
@@ -39,7 +39,7 @@ async def receive_server_messages(server_socket: socket.socket, received_window:
             for json_msg in json_messages:
                 received_message = Message.from_json(json_msg)
                 message   = received_message.msg
-                color_num = determine_sender(received_message.addr)
+                color_num = determine_sender(received_message.user)
                 metadata  = format_metadata(received_message.name, received_message.time)
                 received_window.paint_message(metadata, message, color_num)
 

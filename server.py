@@ -100,7 +100,7 @@ def os_error_logging(socket_wrapper) -> None:
     log_debug_info("OSERROR OCCURRED: ENDING LOGGING")
 
 def load_messages(socket_wrapper) -> None:
-    results = db.execute("select contents, messaged_at, display_name, username from messages limit 10") 
+    results = db.execute("select contents, messaged_at, display_name, username from messages where chatroom_id = %s order by messaged_at desc limit 50", (CHAT_ROOM_ID)) 
     json_messages = []
     for result in results:
         json_messages.append(Message(result.contents, time=result.messaged_at, name=result.display_name, user=result.username).to_json())

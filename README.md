@@ -1,6 +1,19 @@
 # The Terminal Messenger #
 
-Chat server and client written with Python using sockets library :)
+A centralized messaging service available right in your terminal. Now, you never have to leave your workspace again.
+
+
+We created a TCP server to relay messages back and forth between multiple users in a singular chatroom, and created a basic terminal UI with the NCURSES library. Basic test suite and `pylint` passing. 
+
+Persistent messages coming soon! Once we stop re-implementing it... :eyes:
+
+
+[Conversation Example 1](images/conversation_one.png)
+[Conversation Example 2](images/conversation_two.png)
+
+## Backstory
+This project began as a quick test. After both of us had some web development experience under our belts, we wanted a better understanding of how the underlying infrastructure of the web works. So, we began working on a small messaging service to communicate with each other. And it spiralled from there.
+
 
 ## Core Features ##
 - [ ] message one on one with another client
@@ -58,11 +71,11 @@ Chat server and client written with Python using sockets library :)
 - [ ] prevent injection/other exploits to server
 - [ ] defend against unknown information/requests
 ### HTTP Server ###
-- [ ] **TEMP** static HTML page that we serve (with web server) about the project (until HTTP server server are established)
+- [x] **TEMP** static HTML page that we serve (with web server) about the project (until HTTP server server are established)
 - [ ] user/message history
 - [ ] Data analytics (possibly integrated with the client by default?)
 - [ ] Full-text search
-- [ ] and more
+- [ ] and more?
 ### WebSockets Client ###
 - [ ] gain the ability to send messages from terminal to browser client and vice versa
 - [ ] create a desktop app to accompany the browser version of the client

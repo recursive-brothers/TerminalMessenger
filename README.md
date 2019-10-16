@@ -9,9 +9,7 @@ Persistent messages coming soon! Once we stop re-implementing it... :eyes:
 
 
 ![Conversation Example 1](images/conversation_one.png)
-
-![Conversation Example 2](images/conversation_two.png) 
-<!-- .element style="height: 400%; width: 400%" -->
+<img src="images/conversation_two.png" height="200%" width="200%">
 
 ## Backstory
 This project began as a quick test. After both of us had some web development experience under our belts, we wanted a better understanding of how the underlying infrastructure of the web works. So, we began working on a small messaging service to communicate with each other. And it spiralled from there.

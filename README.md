@@ -9,7 +9,6 @@ Persistent messages coming soon! Once we stop re-implementing it... :eyes:
 
 
 ![Conversation Example 1](images/conversation_one.png)
-<img src="images/conversation_two.png" height="487px" width="420px"/>
 
 ## Backstory
 This project began as a quick test. After both of us had some web development experience under our belts, we wanted a better understanding of how the underlying infrastructure of the web works. So, we began working on a small messaging service to communicate with each other. And it spiralled from there.

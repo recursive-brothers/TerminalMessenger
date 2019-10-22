@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-def BaseLayer(ABC):
+class ClientInterface(ABC):
     def __init__(self):
         pass
 

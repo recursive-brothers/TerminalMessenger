@@ -30,7 +30,7 @@ class DynamoClient(ClientInterface):
         self.messages_table.put_item(
             Item={
                 'chatroom_id': chatroom_id,
-                'messaged_at': msg.time,
+                'messaged_at': msg.fmt_time,
                 'message_id': str(uuid1()),
                 'contents': msg.msg,
                 'display_name': msg.user,

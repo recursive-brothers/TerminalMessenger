@@ -13,10 +13,10 @@ from client_modules.utils import Message
 class DynamoClient(ClientInterface):
     def __init__(self):
         self.db = None
-        self.messages_table = self.db.Table("messages")
-
+        self.messages_table = None
     def connect(self):
         self.db = boto3.resource('dynamodb')
+        self.messages_table = self.db.Table("messages")
 
     def get_chatroom_msgs(self, chatroom_id, limit = 50):
         pass

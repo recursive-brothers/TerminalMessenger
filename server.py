@@ -63,7 +63,7 @@ def initialize_master_socket(port: int) -> None:
 
 def setup() -> None:
     port = int(args.port)
-    db.connect()
+    db_client.connect()
     initialize_master_socket(port)
     log_debug_info('listening on', (HOST, port))
 

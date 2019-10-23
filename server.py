@@ -96,7 +96,7 @@ def os_error_logging(socket_wrapper) -> None:
     log_debug_info("OSERROR OCCURRED: ENDING LOGGING")
 
 def load_messages(socket_wrapper) -> None:
-    results = db_client.get_msgs(CHATROOM_ID, 50)
+    results = db_client.get_chatroom_msgs(CHATROOM_ID, 50)
     log_debug_info(results)
     json_messages = []
     for result in results:

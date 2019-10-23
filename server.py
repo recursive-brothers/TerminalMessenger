@@ -104,7 +104,7 @@ def load_messages(socket_wrapper) -> None:
 '''
 
 def route_message(msg: Message):
-    query, values = msg.generate_cql(CHAT_ROOM_ID)
+    # query, values = msg.generate_cql(CHAT_ROOM_ID)
     db_client.insert_msg(msg, CHATROOM_ID)
     send_to_all(msg.to_json().encode())
 

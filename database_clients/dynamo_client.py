@@ -1,7 +1,14 @@
-from client_interface import ClientInterface
+import os
+import sys
+
+BASE_DIR = os.path.dirname(__file__)
+sys.path.append(BASE_DIR)
+
 import boto3
 from boto3.dynamodb.conditions import Key
 from uuid import uuid1
+from client_interface import ClientInterface
+from client_modules.utils import Message
 
 class DynamoClient(ClientInterface):
     def __init__(self):
@@ -10,7 +17,6 @@ class DynamoClient(ClientInterface):
 
     def connect(self):
         self.db = boto3.resource('dynamodb')
-        self.messages_table = self.db.Table('messages')
 
     def get_chatroom_msgs(self, chatroom_id, limit = 50):
         pass
@@ -20,8 +26,9 @@ class DynamoClient(ClientInterface):
         #     KeyConditionExpression=Key('year').eq(1992) & Key('title').between('A', 'L')
         # )
     
-    def insert_msg(self, msg, chatroom_id):
-        self.messages_table.put_item(
+    def insert_msg(self, msg: Message, chatroom_id):
+        self.db.put_item(
+            TableName='messages',
             Item={
                 'chatroom_id': self.chatroom_id,
                 'messaged_at': msg.time,

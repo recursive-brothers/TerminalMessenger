@@ -17,18 +17,18 @@ import datetime
 import json
 import re
 import uuid
-from cassandra.cluster import Cluster
+# from cassandra.cluster import Cluster
+from database_clients.dynamo_client import DynamoClient
 from client_modules.utils import Message
 from typing import Any, List, Tuple, Dict
 
 
 HOST = "0.0.0.0"
 SERVER_NAME = "Terminal Messenger"
-DB_NAME = "tm_db"
-CHAT_ROOM_ID = uuid.UUID('c7532c20-e301-11e9-aaef-0800200c9a66')
 
+CHATROOM_ID = 'c7532c20-e301-11e9-aaef-0800200c9a66'
 
-db: Any = None
+db_client: DynamoClient = DynamoClient()
 
 parser = argparse.ArgumentParser()
 parser.add_argument('port')
@@ -61,13 +61,9 @@ def initialize_master_socket(port: int) -> None:
     master_socket.setblocking(False)
     client_manager.register(master_socket, selectors.EVENT_READ, data=None)
 
-def initialize_db() -> None:
-    global db
-    db = Cluster().connect(DB_NAME)
-
 def setup() -> None:
     port = int(args.port)
-    initialize_db()
+    db.connect()
     initialize_master_socket(port)
     log_debug_info('listening on', (HOST, port))
 
@@ -99,16 +95,17 @@ def os_error_logging(socket_wrapper) -> None:
     log_debug_info(traceback.format_exc())
     log_debug_info("OSERROR OCCURRED: ENDING LOGGING")
 
+'''
 def load_messages(socket_wrapper) -> None:
-    results = db.execute("select contents, messaged_at, display_name, username from messages where chatroom_id = %s order by messaged_at desc limit 50", [CHAT_ROOM_ID]) 
     json_messages = []
     for result in results:
         json_messages.append(Message(result.contents, time=result.messaged_at, name=result.display_name, user=result.username).to_json())
     socket_wrapper.fileobj.send(''.join(reversed(json_messages)).encode())
+'''
 
 def route_message(msg: Message):
     query, values = msg.generate_cql(CHAT_ROOM_ID)
-    db.execute(query, values)
+    db_client.insert_msg(msg, CHATROOM_ID)
     send_to_all(msg.to_json().encode())
 
 def handle_client(socket_wrapper, events: int) -> None:
@@ -131,7 +128,7 @@ def handle_client(socket_wrapper, events: int) -> None:
             name = recv_data.decode()
             socket_wrapper.data.name = name
             socket_wrapper.data.handshake_complete = True
-            load_messages(socket_wrapper)
+            # load_messages(socket_wrapper)
             msg = Message(f'{name} has joined the chat!', datetime.datetime.utcnow(), SERVER_NAME, SERVER_NAME)
             route_message(msg)
         else:

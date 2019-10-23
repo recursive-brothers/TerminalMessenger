@@ -13,7 +13,7 @@ from client_modules.utils import Message
 class DynamoClient(ClientInterface):
     def __init__(self):
         self.db = None
-        self.chatroom_id = 'c7532c20-e301-11e9-aaef-0800200c9a66'
+        self.messages_table = self.db.Table("messages")
 
     def connect(self):
         self.db = boto3.resource('dynamodb')
@@ -27,8 +27,7 @@ class DynamoClient(ClientInterface):
         # )
     
     def insert_msg(self, msg: Message, chatroom_id):
-        self.db.put_item(
-            TableName='messages',
+        self.messages_table.put_item(
             Item={
                 'chatroom_id': self.chatroom_id,
                 'messaged_at': msg.time,

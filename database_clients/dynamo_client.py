@@ -20,14 +20,13 @@ class DynamoClient(ClientInterface):
         self.messages_table = self.db.Table("messages")
 
     def get_chatroom_msgs(self, chatroom_id, limit = 50):
-        json_responses = self.messages_table.query(
+        responses = self.messages_table.query(
             # IndexName='timestamp_index',
             ProjectionExpression="messaged_at, message_id, contents, display_name",
             Limit=limit,
             KeyConditionExpression=Key('chatroom_id').eq(chatroom_id)
         )
 
-        responses = json.loads(json_responses)
         return [self.parse_message(response) for response in responses["Items"]]
 
     def insert_msg(self, msg: Message, chatroom_id):

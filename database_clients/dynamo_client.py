@@ -5,6 +5,7 @@ BASE_DIR = os.path.dirname(__file__)
 sys.path.append(BASE_DIR)
 
 import boto3
+import json
 from boto3.dynamodb.conditions import Key
 from uuid import uuid1
 from client_interface import ClientInterface
@@ -19,14 +20,16 @@ class DynamoClient(ClientInterface):
         self.messages_table = self.db.Table("messages")
 
     def get_chatroom_msgs(self, chatroom_id, limit = 50):
-        response = self.messages_table.query(
+        json_responses = self.messages_table.query(
             # IndexName='timestamp_index',
             ProjectionExpression="messaged_at, message_id, contents, display_name",
             Limit=limit,
             KeyConditionExpression=Key('chatroom_id').eq(chatroom_id)
         )
-        return response
-    
+
+        responses = json.loads(json_responses)
+        return [self.parse_message(response) for response in responses["Items"]]
+
     def insert_msg(self, msg: Message, chatroom_id):
         self.messages_table.put_item(
             Item={
@@ -38,3 +41,10 @@ class DynamoClient(ClientInterface):
                 'username': msg.user
             }
         )
+
+    def parse_message(self, response):
+        result = {}
+        for key, value in response.items():
+            result[key] = value["S"]
+
+        return result

@@ -15,3 +15,7 @@ class ClientInterface(ABC):
     @abstractmethod
     def insert_msg(self, msg, chatroom_id):
         pass
+
+    @abstractmethod
+    def parse_message(self, msg):
+        pass

@@ -74,17 +74,14 @@ class Message:
     def fmt_time(self):
         return self.time.strftime("%Y-%m-%d %H:%M:%S.%f") if self.time else ''
 
-    def generate_cql(self, chatroom_id) -> Tuple:
-       return ("""
-               insert into messages (chatroom_id, messaged_at, message_id, contents, display_name, username)
-               values (%s, %s, %s, %s, %s, %s)
-               """, (chatroom_id, self.time, uuid1(), self.msg, self.name, self.user))
-
-    @staticmethod
-    def from_json(json_msg: str) -> 'Message':
-        message = json.loads(json_msg)
+    @classmethod
+    def from_dict(cls, message):
         time = datetime.datetime.strptime(message["time"], '%Y-%m-%d %H:%M:%S.%f') if message['time'] else '' 
-        return Message(message["message"], time, message["name"], message.get("user", ""))
+        return cls(message["message"], time, message["name"], message.get("user", ""))
+
+    @classmethod
+    def from_json(cls, json_msg: str) -> 'Message':
+        return cls.from_dict(json.loads(json_msg))
 
     @staticmethod
     def serialize_json(**kwargs: Any) -> str:

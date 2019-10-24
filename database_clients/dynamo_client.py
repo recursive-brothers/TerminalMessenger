@@ -41,9 +41,5 @@ class DynamoClient(ClientInterface):
             }
         )
 
-    # def parse_message(self, response):
-    #     result = {}
-    #     for key, value in response.items():
-    #         result[key] = value["S"]
-
-    #     return result
+    def parse_message(self, _msg):
+        return None

@@ -10,6 +10,7 @@ from boto3.dynamodb.conditions import Key
 from uuid import uuid1
 from client_interface import ClientInterface
 from client_modules.utils import Message
+from typing import List, Dict
 
 class DynamoClient(ClientInterface):
     def __init__(self):
@@ -19,15 +20,14 @@ class DynamoClient(ClientInterface):
         self.db = boto3.resource('dynamodb')
         self.messages_table = self.db.Table("messages")
 
-    def get_chatroom_msgs(self, chatroom_id, limit = 50):
+    def get_chatroom_msgs(self, chatroom_id, limit = 50) -> List[Dict]:
         responses = self.messages_table.query(
-            # IndexName='timestamp_index',
             ProjectionExpression="messaged_at, message_id, contents, display_name",
             Limit=limit,
             KeyConditionExpression=Key('chatroom_id').eq(chatroom_id)
         )
 
-        return [self.parse_message(response) for response in responses["Items"]]
+        return responses["Items"]
 
     def insert_msg(self, msg: Message, chatroom_id):
         self.messages_table.put_item(
@@ -41,9 +41,9 @@ class DynamoClient(ClientInterface):
             }
         )
 
-    def parse_message(self, response):
-        result = {}
-        for key, value in response.items():
-            result[key] = value["S"]
+    # def parse_message(self, response):
+    #     result = {}
+    #     for key, value in response.items():
+    #         result[key] = value["S"]
 
-        return result
+    #     return result

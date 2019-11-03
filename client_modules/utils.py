@@ -76,7 +76,7 @@ class Message:
 
     @classmethod
     def from_dict(cls, message):
-        time = datetime.datetime.strptime(message["time"], '%Y-%m-%d %H:%M:%S.%f') if message['time'] else '' 
+        time = datetime.datetime.strptime(message["messaged_at"], '%Y-%m-%d %H:%M:%S.%f') if message['messaged_at'] else '' 
         return cls(message["message"], time, message["name"], message.get("user", ""))
 
     @classmethod

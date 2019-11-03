@@ -68,7 +68,7 @@ class Message:
 
     def to_json(self) -> str:
         time_str = self.fmt_time
-        return Message.serialize_json(message=self.msg, name=self.name, messaged_at=time_str, user=self.user)
+        return Message.serialize_json(contents=self.msg, display_name=self.name, messaged_at=time_str, user=self.user)
 
     @property
     def fmt_time(self):

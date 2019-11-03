@@ -97,6 +97,7 @@ def os_error_logging(socket_wrapper) -> None:
 
 def load_messages(socket_wrapper) -> None:
     results = db_client.get_chatroom_msgs(CHATROOM_ID, 50)
+    log_debug_info(results)
     json_messages = json.dumps(results)
     socket_wrapper.fileobj.send(''.join(reversed(json_messages)).encode())
 

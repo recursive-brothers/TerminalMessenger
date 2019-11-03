@@ -77,7 +77,7 @@ class Message:
     @classmethod
     def from_dict(cls, message):
         time = datetime.datetime.strptime(message["messaged_at"], '%Y-%m-%d %H:%M:%S.%f') if message['messaged_at'] else '' 
-        return cls(message["message"], time, message["name"], message.get("user", ""))
+        return cls(message["contents"], time, message["display_name"], message.get("user", ""))
 
     @classmethod
     def from_json(cls, json_msg: str) -> 'Message':

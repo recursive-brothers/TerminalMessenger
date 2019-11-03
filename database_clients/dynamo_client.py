@@ -24,6 +24,7 @@ class DynamoClient(ClientInterface):
         responses = self.messages_table.query(
             ProjectionExpression="messaged_at, message_id, contents, display_name",
             Limit=limit,
+            Index='timestamp_index',
             KeyConditionExpression=Key('chatroom_id').eq(chatroom_id)
         )
 

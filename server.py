@@ -39,6 +39,8 @@ logging.basicConfig(filename='server.log',
                             datefmt='%H:%M:%S',
                             level=logging.DEBUG)
 
+logging.getLogger("boto").setLevel(logging.CRITICAL)
+
 list_of_sockets: List[socket.socket] = []
 client_manager = selectors.DefaultSelector()
 

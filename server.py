@@ -37,9 +37,7 @@ args = parser.parse_args()
 logging.basicConfig(filename='server.log',
                             filemode='a',
                             datefmt='%H:%M:%S',
-                            level=logging.DEBUG)
-
-logging.getLogger("boto").setLevel(logging.CRITICAL)
+                            level=logging.INFO)
 
 list_of_sockets: List[socket.socket] = []
 client_manager = selectors.DefaultSelector()
@@ -54,7 +52,7 @@ class ClientInformation:
 def log_debug_info(*args: Any) -> None:
     str_args = [str(arg) for arg in args]
     str_args.append(str(datetime.datetime.now()))
-    logging.debug(' '.join(str_args))
+    logging.info(' '.join(str_args))
 
 def initialize_master_socket(port: int) -> None:
     master_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

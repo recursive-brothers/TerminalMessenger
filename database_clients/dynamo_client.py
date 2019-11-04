@@ -26,6 +26,7 @@ class DynamoClient(ClientInterface):
             Limit=limit,
             IndexName='timestamp_index',
             ScanIndexForward=False,
+            ConsistentRead=True,
             KeyConditionExpression=Key('chatroom_id').eq(chatroom_id)
         )
 

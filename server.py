@@ -59,6 +59,7 @@ def log_debug_info(*args: Any) -> None:
 
 def initialize_master_socket(port: int) -> None:
     master_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    master_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     master_socket.bind((HOST, port))
     master_socket.listen()
     master_socket.setblocking(False)

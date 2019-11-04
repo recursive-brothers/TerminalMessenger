@@ -25,6 +25,7 @@ class DynamoClient(ClientInterface):
             ProjectionExpression="messaged_at, message_id, contents, display_name",
             Limit=limit,
             IndexName='timestamp_index',
+            ScanIndexForward=False,
             KeyConditionExpression=Key('chatroom_id').eq(chatroom_id)
         )
 

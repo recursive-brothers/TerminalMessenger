@@ -29,14 +29,16 @@ async def receive_server_messages(server_socket: socket.socket, received_window:
     while True:
         raw_messages = None
         try:
-            raw_messages = server_socket.recv(BUFFER_SIZE).decode()
-            logging.debug(raw_messages)
+            raw_messages = server_socket.recv(1024*8).decode() # should keep on reading from the buffer until its empty instead of just reading once
         except:
             pass
         if raw_messages:
             json_messages  = re.findall(r'{.*?}', raw_messages)
-
+            logging.debug(json_messages)
+            logging.debug("pee" * 20)
+            
             for json_msg in json_messages:
+                logging.debug(json_msg)
                 received_message = Message.from_json(json_msg)
                 message   = received_message.msg
                 color_num = determine_sender(received_message.user)

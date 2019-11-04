@@ -1,5 +1,6 @@
 import curses
 from .utils import CursorPosition
+import logging
 
 class ReceivedWindow:
     # the pad constructor only takes height and width

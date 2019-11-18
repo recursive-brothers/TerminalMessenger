@@ -54,7 +54,7 @@ logger.addHandler(warning_handler)
 logger.addHandler(info_handler)
 logger.addHandler(debug_handler)
 
-logging.basicConfig(filemode='a', datefmt='%H:%M:%S', format='%(asctime)s::%(funcName)s::%(lineno)d::%(message)s')
+# logging.basicConfig(filemode='a', datefmt='%H:%M:%S', format='%(asctime)s::%(funcName)s::%(lineno)d::%(message)s')
 
 list_of_sockets: List[socket.socket] = []
 client_manager = selectors.DefaultSelector()

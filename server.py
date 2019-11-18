@@ -53,23 +53,14 @@ logger = logging.getLogger('tm_server_logger')
 # logger.addHandler(warning_handler)
 # logger.addHandler(info_handler)
 # logger.addHandler(debug_handler)
-c_handler = logging.StreamHandler()
-f_handler = logging.FileHandler('file.log')
-c_handler.setLevel(logging.WARNING)
-f_handler.setLevel(logging.ERROR)
+debug_handler = logging.FileHandler('debug.log')
+debug_handler.setLevel(logging.DEBUG)
 
-# Create formatters and add it to handlers
-c_format = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
 f_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-c_handler.setFormatter(c_format)
-f_handler.setFormatter(f_format)
+debug_handler.setFormatter(f_format)
+logger.addHandler(debug_handler)
 
-# Add handlers to the logger
-logger.addHandler(c_handler)
-logger.addHandler(f_handler)
-
-logger.warning('This is a warning')
-logger.error('This is an error')
+logger.debug('this better work')
 
 # logging.basicConfig(filemode='a', datefmt='%H:%M:%S', format='%(asctime)s::%(funcName)s::%(lineno)d::%(message)s')
 

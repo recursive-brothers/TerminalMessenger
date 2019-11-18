@@ -1,5 +1,7 @@
 *.log
+__pycache__/*
 client_modules/__pycache__/*
 client_modules/*.pyc
 .mypy_cache/
 __pycache__/
+*.txt

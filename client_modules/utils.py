@@ -1,7 +1,13 @@
+import json
+import datetime
+from uuid import uuid1
 from enum import Enum
-from typing import Any, List
+from typing import Any, List, Union, Tuple
+from tzlocal import get_localzone
 
-ADDRESS: List[Any] = []
+TIMEZONE: Any = get_localzone()
+
+USERNAME: str = ""
 
 BUFFER_SIZE = 1024
 SLEEP_TIME  = .001
@@ -13,6 +19,8 @@ SCROLL_UP   = 65
 SCROLL_DOWN = 66
 
 RECEIVED_WINDOW_RATIO = .85
+
+
 
 class SENDER(Enum):
     SELF     = 1
@@ -50,3 +58,31 @@ class CursorPosition:
     def __init__(self, startY: int, startX: int):
         self.y = startY
         self.x = startX
+
+class Message:
+    def __init__(self, msg: str, time: Any  = '', name: str = "", user: str = ""):
+        self.msg  = msg
+        self.name = name
+        self.time = time
+        self.user = user
+
+    def to_json(self) -> str:
+        time_str = self.fmt_time
+        return Message.serialize_json(contents=self.msg, display_name=self.name, messaged_at=time_str, user=self.user)
+
+    @property
+    def fmt_time(self):
+        return self.time.strftime("%Y-%m-%d %H:%M:%S.%f") if self.time else ''
+
+    @classmethod
+    def from_dict(cls, message):
+        time = datetime.datetime.strptime(message["messaged_at"], '%Y-%m-%d %H:%M:%S.%f') if message['messaged_at'] else '' 
+        return cls(message["contents"], time, message["display_name"], message.get("user", ""))
+
+    @classmethod
+    def from_json(cls, json_msg: str) -> 'Message':
+        return cls.from_dict(json.loads(json_msg))
+
+    @staticmethod
+    def serialize_json(**kwargs: Any) -> str:
+        return json.dumps(kwargs)

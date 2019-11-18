@@ -1,5 +1,11 @@
 #!/usr/bin/python3
 
+import os
+import sys
+
+BASE_DIR = os.path.dirname(__file__)
+sys.path.append(BASE_DIR)
+
 import selectors
 import socket
 import types
@@ -9,10 +15,20 @@ import traceback
 import logging
 import datetime
 import json
+import re
+import uuid
+# from cassandra.cluster import Cluster
+from database_clients.dynamo_client import DynamoClient
+from client_modules.utils import Message
 from typing import Any, List, Tuple, Dict
 
-HOST = '0.0.0.0' 
+
+HOST = "0.0.0.0"
 SERVER_NAME = "Terminal Messenger"
+
+CHATROOM_ID = 'c7532c20-e301-11e9-aaef-0800200c9a66'
+
+db_client: DynamoClient = DynamoClient()
 
 parser = argparse.ArgumentParser()
 parser.add_argument('port')
@@ -26,6 +42,9 @@ logging.basicConfig(filename='server.log',
 list_of_sockets: List[socket.socket] = []
 client_manager = selectors.DefaultSelector()
 
+logging.getLogger('boto3').setLevel(logging.WARNING)
+logging.getLogger('botocore').setLevel(logging.WARNING)
+logging.getLogger('nose').setLevel(logging.WARNING)
 
 class ClientInformation:
     def __init__(self, addr: str):
@@ -33,17 +52,14 @@ class ClientInformation:
         self.handshake_complete = False
         self.name = None
 
-
 def log_debug_info(*args: Any) -> None:
     str_args = [str(arg) for arg in args]
     str_args.append(str(datetime.datetime.now()))
     logging.debug(' '.join(str_args))
 
-def serialize_message(**kwargs: Any) -> str:
-    return json.dumps(kwargs)
-
 def initialize_master_socket(port: int) -> None:
     master_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    master_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     master_socket.bind((HOST, port))
     master_socket.listen()
     master_socket.setblocking(False)
@@ -51,13 +67,13 @@ def initialize_master_socket(port: int) -> None:
 
 def setup() -> None:
     port = int(args.port)
+    db_client.connect()
     initialize_master_socket(port)
     log_debug_info('listening on', (HOST, port))
 
 def accept_new_client(master_socket) -> None:
     client_socket, addr = master_socket.accept()
     client_socket.setblocking(False)
-    client_socket.send(serialize_message(address=addr[0],port=addr[1]).encode())
     client_manager.register(client_socket, selectors.EVENT_READ | selectors.EVENT_WRITE, data = ClientInformation(addr))
     list_of_sockets.append(client_socket)
     log_debug_info('accepted client', addr)
@@ -69,10 +85,10 @@ def close_client_connection(socket_wrapper) -> None:
     client_manager.unregister(client_socket)
     client_socket.close()
     list_of_sockets.remove(client_socket)
-    send_to_all(serialize_message(address=0, name=SERVER_NAME, message=f'{closed_client_name} has left the chat!').encode())
+    msg = Message(f'{closed_client_name} has left the chat!', datetime.datetime.utcnow(), SERVER_NAME, SERVER_NAME)
+    route_message(msg)
 
 def send_to_all(recv_data: bytes) -> None:
-    log_debug_info('client sent ->', recv_data.decode())
     for socket in list_of_sockets:
         socket.send(recv_data)
 
@@ -83,6 +99,15 @@ def os_error_logging(socket_wrapper) -> None:
     log_debug_info(traceback.format_exc())
     log_debug_info("OSERROR OCCURRED: ENDING LOGGING")
 
+def load_messages(socket_wrapper) -> None:
+    results = db_client.get_chatroom_msgs(CHATROOM_ID, 50)
+    results.reverse()
+    json_messages = json.dumps(results)
+    socket_wrapper.fileobj.send(json_messages.encode())
+
+def route_message(msg: Message):
+    db_client.insert_msg(msg, CHATROOM_ID)
+    send_to_all(msg.to_json().encode())
 
 def handle_client(socket_wrapper, events: int) -> None:
     recv_data = None 
@@ -96,17 +121,24 @@ def handle_client(socket_wrapper, events: int) -> None:
         except TimeoutError:
             recv_data = None
             log_debug_info("time out error, disconnecting: ", socket_wrapper.data.addr)
-	
+
         if not recv_data:
             close_client_connection(socket_wrapper)
+            return
         elif not socket_wrapper.data.handshake_complete:
             name = recv_data.decode()
             socket_wrapper.data.name = name
             socket_wrapper.data.handshake_complete = True
-
-            send_to_all(serialize_message(address=0, name=SERVER_NAME, message=f'{name} has joined the chat!').encode())
+            load_messages(socket_wrapper)
+            msg = Message(f'{name} has joined the chat!', datetime.datetime.utcnow(), SERVER_NAME, SERVER_NAME)
+            route_message(msg)
         else:
-            send_to_all(serialize_message(address=socket_wrapper.data.addr, name=socket_wrapper.data.name, message=recv_data.decode()).encode())
+            raw_messages = recv_data.decode()
+            json_messages = re.findall(r'{.*?}', raw_messages)
+            for json_msg in json_messages:
+                msg = Message.from_json(json_msg)
+                msg.time = datetime.datetime.utcnow()
+                route_message(msg)
 
 def event_loop() -> None:
     while True:
@@ -148,6 +180,7 @@ DEBUG:root:client sent -> {"address": 0, "name": "Terminal Messenger", "message"
 """
 
 """
-1. (MAYBE) track down (some) of the errors in the above list
-2. add documentation for received window and client window
+Bug: people communicating between time zones get weird times for each other's messages, not ones
+consistent with their time zone.
+Solution: store milliseconds ('unix time') in mongo and convert to timezone on client
 """

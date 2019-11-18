@@ -9,6 +9,7 @@ import json
 import traceback
 from client_modules import *
 
+
 logging.basicConfig(filename='client.log',
                             filemode='a',
                             datefmt='%H:%M:%S',
@@ -21,6 +22,7 @@ args = parser.parse_args()
 
 HOST    = 'terminalmessenger.com'
 PORT    = int(args.port)
+
 
 async def main(s: socket.socket) -> None:
     stdscr = setup_curses()
@@ -54,9 +56,8 @@ def cleanup_curses() -> None:
     curses.endwin()
 
 def handshake(server_socket: socket.socket) -> None:
-    ip_and_port = json.loads(server_socket.recv(BUFFER_SIZE).decode())
-    utils.ADDRESS = [ip_and_port['address'], ip_and_port['port']]
-    server_socket.sendall(args.name.encode())
+    utils.USERNAME = args.name
+    server_socket.sendall(utils.USERNAME.encode())
     server_socket.setblocking(False)
 
 if __name__ == "__main__":

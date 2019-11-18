@@ -13,7 +13,7 @@ messages schema:
     "_id": ObjectId,
     "userId": ObjectId,
     "message": String,
-    "timestamp": Date
+    "timestamp": Datetime
 } 
 ```
 

@@ -65,7 +65,7 @@ class ClientInformation:
 def log_debug_info(*args: Any) -> None:
     str_args = [str(arg) for arg in args]
     str_args.append(str(datetime.datetime.now()))
-    logging.debug(' '.join(str_args))
+    logger.debug(' '.join(str_args))
 
 def initialize_master_socket(port: int) -> None:
     master_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

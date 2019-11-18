@@ -35,24 +35,41 @@ args = parser.parse_args()
 
 logger = logging.getLogger('tm_server_logger')
 
-critical_handler = logging.FileHandler('critical.log')
-error_handler = logging.FileHandler('error.log')
-warning_handler = logging.FileHandler('warning.log')
-info_handler = logging.FileHandler('info.log')
-debug_handler = logging.FileHandler('debug.log')
+# critical_handler = logging.FileHandler('critical.log')
+# error_handler = logging.FileHandler('error.log')
+# warning_handler = logging.FileHandler('warning.log')
+# info_handler = logging.FileHandler('info.log')
+# debug_handler = logging.FileHandler('debug.log')
 
-critical_handler.setLevel(logging.CRITICAL)
-error_handler.setLevel(logging.ERROR)
-warning_handler.setLevel(logging.WARNING)
-info_handler.setLevel(logging.INFO)
-debug_handler.setLevel(logging.DEBUG)
+# critical_handler.setLevel(logging.CRITICAL)
+# error_handler.setLevel(logging.ERROR)
+# warning_handler.setLevel(logging.WARNING)
+# info_handler.setLevel(logging.INFO)
+# debug_handler.setLevel(logging.DEBUG)
 
 
-logger.addHandler(critical_handler)
-logger.addHandler(error_handler)
-logger.addHandler(warning_handler)
-logger.addHandler(info_handler)
-logger.addHandler(debug_handler)
+# logger.addHandler(critical_handler)
+# logger.addHandler(error_handler)
+# logger.addHandler(warning_handler)
+# logger.addHandler(info_handler)
+# logger.addHandler(debug_handler)
+c_handler = logging.StreamHandler()
+f_handler = logging.FileHandler('file.log')
+c_handler.setLevel(logging.WARNING)
+f_handler.setLevel(logging.ERROR)
+
+# Create formatters and add it to handlers
+c_format = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+f_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+c_handler.setFormatter(c_format)
+f_handler.setFormatter(f_format)
+
+# Add handlers to the logger
+logger.addHandler(c_handler)
+logger.addHandler(f_handler)
+
+logger.warning('This is a warning')
+logger.error('This is an error')
 
 # logging.basicConfig(filemode='a', datefmt='%H:%M:%S', format='%(asctime)s::%(funcName)s::%(lineno)d::%(message)s')
 

@@ -34,15 +34,12 @@ async def receive_server_messages(server_socket: socket.socket, received_window:
             pass
         if raw_messages:
             json_messages  = re.findall(r'{.*?}', raw_messages)
-            logging.debug(json_messages)
-            logging.debug("pee" * 20)
             
             for json_msg in json_messages:
-                logging.debug(json_msg)
                 received_message = Message.from_json(json_msg)
                 message   = received_message.msg
-                color_num = determine_sender(received_message.user)
-                metadata  = format_metadata(received_message.name, received_message.time)
+                color_num = determine_sender(received_message.display_name)
+                metadata  = format_metadata(received_message.display_name, received_message.time)
                 received_window.paint_message(metadata, message, color_num)
 
         await asyncio.sleep(SLEEP_TIME)

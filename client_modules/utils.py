@@ -60,15 +60,15 @@ class CursorPosition:
         self.x = startX
 
 class Message:
-    def __init__(self, msg: str, time: Any  = '', name: str = "", user: str = ""):
+    def __init__(self, msg: str, time: Any  = '', display_name: str = "", user: str = ""):
         self.msg  = msg
-        self.name = name
+        self.display_name = display_name
         self.time = time
         self.user = user
 
     def to_json(self) -> str:
         time_str = self.fmt_time
-        return Message.serialize_json(contents=self.msg, display_name=self.name, messaged_at=time_str, user=self.user)
+        return Message.serialize_json(contents=self.msg, display_name=self.display_name, messaged_at=time_str, user=self.user)
 
     @property
     def fmt_time(self):

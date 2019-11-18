@@ -22,7 +22,7 @@ This project began as a quick test. After both of us had some web development ex
 - [x] add names to messages
 - [ ] Persistence
 	- [ ] accounts for users
-	- [ ] message history
+	- [x] message history
 - [ ] multi threaded server (for things like handling client handshake in own function, handling even more messages/chatrooms,etc)
 	- [ ] handling a client-server handshake
 	- [ ] better performance and management for multiple messages/chatrooms

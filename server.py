@@ -17,7 +17,6 @@ import datetime
 import json
 import re
 import uuid
-# from cassandra.cluster import Cluster
 from database_clients.dynamo_client import DynamoClient
 from client_modules.utils import Message
 from typing import Any, List, Tuple, Dict
@@ -34,17 +33,28 @@ parser = argparse.ArgumentParser()
 parser.add_argument('port')
 args = parser.parse_args()
 
-logging.basicConfig(filename='server.log',
-                            filemode='a',
-                            datefmt='%H:%M:%S',
-                            level=logging.DEBUG)
+logger = logging.getLogger('tm_server_logger')
+
+critical_handler = logging.FileHandler('critical.log')
+error_handler = logging.FileHandler('error.log')
+warning_handler = logging.FileHandler('warning.log')
+info_handler = logging.FileHandler('info.log')
+debug_handler = logging.FileHandler('debug.log')
+
+logger.addHandler(critical_handler)
+logger.addHandler(error_handler)
+logger.addHandler(warning_handler)
+logger.addHandler(info_handler)
+logger.addHandler(debug_handler)
+
+logging.basicConfig(filemode='a', datefmt='%H:%M:%S', format='%(asctime)s::%(funcName)s::%(lineno)d::%(message)s')
 
 list_of_sockets: List[socket.socket] = []
 client_manager = selectors.DefaultSelector()
 
-logging.getLogger('boto3').setLevel(logging.WARNING)
-logging.getLogger('botocore').setLevel(logging.WARNING)
-logging.getLogger('nose').setLevel(logging.WARNING)
+logging.getLogger('boto3').setLevel(1000)
+logging.getLogger('botocore').setLevel(1000)
+logging.getLogger('nose').setLevel(1000)
 
 class ClientInformation:
     def __init__(self, addr: str):

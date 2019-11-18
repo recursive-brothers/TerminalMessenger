@@ -60,7 +60,7 @@ f_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message
 debug_handler.setFormatter(f_format)
 logger.addHandler(debug_handler)
 
-logger.debug('this better work')
+logger.warning('this better work')
 
 # logging.basicConfig(filemode='a', datefmt='%H:%M:%S', format='%(asctime)s::%(funcName)s::%(lineno)d::%(message)s')
 

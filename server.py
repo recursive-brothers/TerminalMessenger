@@ -41,6 +41,13 @@ warning_handler = logging.FileHandler('warning.log')
 info_handler = logging.FileHandler('info.log')
 debug_handler = logging.FileHandler('debug.log')
 
+critical_handler.setLevel(logging.CRITICAL)
+error_handler.setLevel(logging.ERROR)
+warning_handler.setLevel(logging.WARNING)
+info_handler.setLevel(logging.INFO)
+debug_handler.setLevel(logging.DEBUG)
+
+
 logger.addHandler(critical_handler)
 logger.addHandler(error_handler)
 logger.addHandler(warning_handler)

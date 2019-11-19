@@ -65,6 +65,7 @@ logger.addHandler(debug_handler)
 # logger.addHandler(warning_handler)
 
 logger.warning('this better work')
+logger.error("errrorr")
 logger.debug('sadsdakjdaskjndsajknsdajknadsjkn')
 # logging.basicConfig(filemode='a', datefmt='%H:%M:%S', format='%(asctime)s::%(funcName)s::%(lineno)d::%(message)s')
 

@@ -34,6 +34,7 @@ parser.add_argument('port')
 args = parser.parse_args()
 
 logger = logging.getLogger('tm_server_logger')
+logging.basicConfig(filemode='a', datefmt='%H:%M:%S', format='%(asctime)s::%(funcName)s::%(lineno)d::%(message)s',level = logging.NOTSET)
 
 critical_handler = logging.FileHandler('critical.log')
 error_handler = logging.FileHandler('error.log')
@@ -47,28 +48,11 @@ warning_handler.setLevel(logging.WARNING)
 info_handler.setLevel(logging.INFO)
 debug_handler.setLevel(logging.DEBUG)
 
-
 logger.addHandler(critical_handler)
 logger.addHandler(error_handler)
 logger.addHandler(warning_handler)
 logger.addHandler(info_handler)
 logger.addHandler(debug_handler)
-# debug_handler = logging.FileHandler('debug.log')
-# debug_handler.setLevel(logging.DEBUG)
-
-# warning_handler = logging.FileHandler('warning.log')
-# warning_handler.setLevel(logging.WARNING)
-
-# debug_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-# debug_handler.setFormatter(debug_format)
-# logger.addHandler(debug_handler)
-# logger.addHandler(warning_handler)
-
-logger.warning('this better work')
-logger.error("errrorr")
-logger.debug('sadsdakjdaskjndsajknsdajknadsjkn')
-logger.info("please workkkk")
-logging.basicConfig(filemode='a', datefmt='%H:%M:%S', format='%(asctime)s::%(funcName)s::%(lineno)d::%(message)s',level = logging.NOTSET)
 
 list_of_sockets: List[socket.socket] = []
 client_manager = selectors.DefaultSelector()

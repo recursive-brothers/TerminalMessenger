@@ -68,7 +68,7 @@ logger.warning('this better work')
 logger.error("errrorr")
 logger.debug('sadsdakjdaskjndsajknsdajknadsjkn')
 logger.info("please workkkk")
-#logging.basicConfig(filemode='a', datefmt='%H:%M:%S', format='%(asctime)s::%(funcName)s::%(lineno)d::%(message)s')
+logging.basicConfig(filemode='a', datefmt='%H:%M:%S', format='%(asctime)s::%(funcName)s::%(lineno)d::%(message)s',level = logging.NOTSET)
 
 list_of_sockets: List[socket.socket] = []
 client_manager = selectors.DefaultSelector()

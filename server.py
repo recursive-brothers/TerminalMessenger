@@ -101,7 +101,7 @@ def close_client_connection(socket_wrapper) -> None:
 
 def send_to_all(recv_data: bytes) -> None:
     for socket in list_of_sockets:
-        logger.log(logging.DEBUG, f'sending message to {socket.raddr}')
+        logger.log(logging.DEBUG, f'sending message to {socket.getpeername()}')
         socket.send(recv_data)
 
 def os_error_logging(socket_wrapper) -> None:

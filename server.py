@@ -101,7 +101,7 @@ def close_client_connection(socket_wrapper) -> None:
 
 def send_to_all(recv_data: bytes) -> None:
     for socket in list_of_sockets:
-        logger.log(logging.DEBUG, f'sending message to {socket}')
+        logger.log(logging.DEBUG, f'sending message to {socket.raddr}')
         socket.send(recv_data)
 
 def os_error_logging(socket_wrapper) -> None:
@@ -149,13 +149,14 @@ def handle_client(socket_wrapper, events: int) -> None:
             logger.log(logging.DEBUG, f"handshake completed for {socket_wrapper.data.addr}")
         else:
             raw_messages = recv_data.decode()
-            logger.log(logging.INFO, f"sending message {raw_messages} from {socket_wrapper.data.addr}")
+            logger.log(logging.DEBUG, f"sending message {raw_messages} from {socket_wrapper.data.addr}")
 
             json_messages = re.findall(r'{.*?"contents": ".*?[^\\]".*?}', raw_messages)
             logger.log(logging.DEBUG, f"matched message {json_messages}")
             for json_msg in json_messages:
                 msg = Message.from_json(json_msg)
                 msg.time = datetime.datetime.utcnow()
+                logger.log(logging.INFO, f'sending message {msg} from {socket_wrapper.data.addr}')
                 route_message(msg)
 
 def event_loop() -> None:

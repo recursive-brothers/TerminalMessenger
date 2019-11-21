@@ -59,6 +59,7 @@ This project began as a quick test. After both of us had some web development ex
 - [ ] on sleep/disconnection, display 'disconnected' and try to reconnect on message send
 - [ ] terminal multiplexer, work in the terminal on one pane and message in the other
 - [ ] text formatting in input window: shift+\n for newline, etc.
+- [ ] execute python code and sends the output to the server
 ### Terminal Server ###
 - [ ] admin privileges to starters of group messages/chatrooms, etc.
 - [ ] hidden file with username and password saved to not type in username and password every time (almost like a cookie)

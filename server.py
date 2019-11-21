@@ -67,11 +67,6 @@ class ClientInformation:
         self.handshake_complete = False
         self.name = None
 
-def log(logging_level: int, *args: Any) -> None:
-    str_args = [str(arg) for arg in args]
-    str_args.append(str(datetime.datetime.now()))
-    logger.log(logging_level ,' '.join(str_args))
-
 def initialize_master_socket(port: int) -> None:
     master_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     master_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -79,22 +74,22 @@ def initialize_master_socket(port: int) -> None:
     master_socket.listen()
     master_socket.setblocking(False)
     client_manager.register(master_socket, selectors.EVENT_READ, data=None)
+    logger.log(logging.DEBUG, "master socket initialized")
 
 def setup() -> None:
     port = int(args.port)
     db_client.connect()
     initialize_master_socket(port)
-    log(20,'listening on', (HOST, port))
+    logger.log(logging.INFO, f'listening on {(HOST, port)}')
 
 def accept_new_client(master_socket) -> None:
     client_socket, addr = master_socket.accept()
     client_socket.setblocking(False)
     client_manager.register(client_socket, selectors.EVENT_READ | selectors.EVENT_WRITE, data = ClientInformation(addr))
     list_of_sockets.append(client_socket)
-    log(logging.INFO, 'accepted client', addr)
+    logger.log(logging.INFO, f'accepted client {addr}')
 
 def close_client_connection(socket_wrapper) -> None:
-    log(logging.INFO, 'closing connection', socket_wrapper.data.addr)
     closed_client_name = socket_wrapper.data.name
     client_socket = socket_wrapper.fileobj
     client_manager.unregister(client_socket)
@@ -102,26 +97,30 @@ def close_client_connection(socket_wrapper) -> None:
     list_of_sockets.remove(client_socket)
     msg = Message(f'{closed_client_name} has left the chat!', datetime.datetime.utcnow(), SERVER_NAME, SERVER_NAME)
     route_message(msg)
+    logger.log(logging.INFO, 'closed client connection {socket_wrapper.data.addr}')
 
 def send_to_all(recv_data: bytes) -> None:
     for socket in list_of_sockets:
+        logger.log(logging.DEBUG, f'sending message to {socket}')
         socket.send(recv_data)
 
 def os_error_logging(socket_wrapper) -> None:
-    log(logging.WARNING, "OSERROR OCCURRED: BEGIN LOGGING")
-    log(logging.WARNING, 'address is', socket_wrapper.data.addr)
-    log(logging.WARNING,'count of clients', len(list_of_sockets))
-    log(logging.WARNING, traceback.format_exc())
-    log(logging.WARNING, "OSERROR OCCURRED: ENDING LOGGING")
+    logger.log(logging.WARNING, f'OSERROR OCCURRED: BEGIN LOGGING')
+    logger.log(logging.WARNING, f'address is {socket_wrapper.data.addr}')
+    logger.log(logging.WARNING,f'count of clients {len(list_of_sockets)}')
+    logger.log(logging.WARNING, str(traceback.format_exc()))
+    logger.log(logging.WARNING, "OSERROR OCCURRED: ENDING LOGGING")
 
 def load_messages(socket_wrapper) -> None:
     results = db_client.get_chatroom_msgs(CHATROOM_ID, 50)
     results.reverse()
     json_messages = json.dumps(results)
     socket_wrapper.fileobj.send(json_messages.encode())
+    logger.log(logging.DEBUG, f"loading message history for {socket_wrapper.data.addr}")
 
 def route_message(msg: Message):
     db_client.insert_msg(msg, CHATROOM_ID)
+    logger.log(logging.DEBUG, f'message {msg} inserted into database')
     send_to_all(msg.to_json().encode())
 
 def handle_client(socket_wrapper, events: int) -> None:
@@ -135,7 +134,7 @@ def handle_client(socket_wrapper, events: int) -> None:
             os_error_logging(socket_wrapper)
         except TimeoutError:
             recv_data = None
-            log(logging.ERROR, "time out error, disconnecting: ", socket_wrapper.data.addr)
+            logger.log(logging.ERROR, f"time out error, disconnecting: {socket_wrapper.data.addr}")
 
         if not recv_data:
             close_client_connection(socket_wrapper)
@@ -147,11 +146,13 @@ def handle_client(socket_wrapper, events: int) -> None:
             load_messages(socket_wrapper)
             msg = Message(f'{name} has joined the chat!', datetime.datetime.utcnow(), SERVER_NAME, SERVER_NAME)
             route_message(msg)
+            logger.log(logging.DEBUG, f"handshake completed for {socket_wrapper.data.addr}")
         else:
             raw_messages = recv_data.decode()
             json_messages = re.findall(r'{.*?}', raw_messages)
             for json_msg in json_messages:
                 msg = Message.from_json(json_msg)
+                logger.log(logging.INFO, f"sending message {msg} from {socket_wrapper.data.addr}")
                 msg.time = datetime.datetime.utcnow()
                 route_message(msg)
 
@@ -165,14 +166,14 @@ def event_loop() -> None:
                 handle_client(socket_wrapper, events)
 
 
-log(logging.INFO, '----------------------STARTING SESSION----------------------')
+logger.log(logging.INFO, '----------------------STARTING SESSION----------------------')
 try:
     setup()
     event_loop()
 except Exception as e:
-    log(logging.CRITICAL, traceback.format_exc())
+    logger.log(logging.CRITICAL, traceback.format_exc())
 
-log(logging.INFO, '----------------------ENDING SESSION-------------------------')
+logger.log(logging.INFO, '----------------------ENDING SESSION-------------------------')
 
 """
 ERROR LIST:

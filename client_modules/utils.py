@@ -86,3 +86,6 @@ class Message:
     @staticmethod
     def serialize_json(**kwargs: Any) -> str:
         return json.dumps(kwargs)
+
+    def __str__(self):
+        return msg.msg

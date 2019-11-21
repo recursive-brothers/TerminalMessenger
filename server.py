@@ -149,7 +149,7 @@ def handle_client(socket_wrapper, events: int) -> None:
             logger.log(logging.DEBUG, f"handshake completed for {socket_wrapper.data.addr}")
         else:
             raw_messages = recv_data.decode()
-            json_messages = re.findall(r'{.*?}', raw_messages)
+            json_messages = re.findall(r'{.*?"contents": ".*?[^\\]".*?}', raw_messages)
             for json_msg in json_messages:
                 msg = Message.from_json(json_msg)
                 logger.log(logging.INFO, f"sending message {msg} from {socket_wrapper.data.addr}")

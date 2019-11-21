@@ -149,10 +149,12 @@ def handle_client(socket_wrapper, events: int) -> None:
             logger.log(logging.DEBUG, f"handshake completed for {socket_wrapper.data.addr}")
         else:
             raw_messages = recv_data.decode()
+            logger.log(logging.INFO, f"sending message {raw_messages} from {socket_wrapper.data.addr}")
+
             json_messages = re.findall(r'{.*?"contents": ".*?[^\\]".*?}', raw_messages)
+            logger.log(logging.DEBUG, f"matched message {json_messages}")
             for json_msg in json_messages:
                 msg = Message.from_json(json_msg)
-                logger.log(logging.INFO, f"sending message {msg} from {socket_wrapper.data.addr}")
                 msg.time = datetime.datetime.utcnow()
                 route_message(msg)
 

@@ -88,4 +88,4 @@ class Message:
         return json.dumps(kwargs)
 
     def __str__(self):
-        return msg.msg
+        return self.msg

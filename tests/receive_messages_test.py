@@ -11,7 +11,7 @@ from client_modules import utils
 
 
 
-utils.ADDRESS = 1
+utils.USERNAME = "Mitch & Zumaad"
 
 class MockServerSocket:
     def recv(self, _arg):
@@ -23,15 +23,15 @@ class SocketReceiverTest(unittest.TestCase):
         self.server_socket = MockServerSocket()
 
     def test_determine_sender_terminal(self):
-        sender = determine_sender(0)
-        self.assertEqual(sender, utils.SENDER.TERMINAL.value)
-
-    def test_determine_sender_self(self):
-        sender = determine_sender(utils.ADDRESS)
+        sender = determine_sender("Mitch & Zumaad")
         self.assertEqual(sender, utils.SENDER.SELF.value)
 
+    def test_determine_sender_self(self):
+        sender = determine_sender("Terminal Messenger")
+        self.assertEqual(sender, utils.SENDER.TERMINAL.value)
+
     def test_determine_sender_other(self):
-        sender = determine_sender(2)
+        sender = determine_sender("This is unrelated")
         self.assertEqual(sender, utils.SENDER.OTHER.value)
 
     @mock.patch('datetime.datetime')
@@ -46,10 +46,3 @@ class SocketReceiverTest(unittest.TestCase):
 
 if __name__ == '__main__':
         unittest.main()
-
-
-"""
-1. how do we test curses
-2. do we want full 'integration test' type tests for sockets
-3. how do we test asynchronous behavior
-"""

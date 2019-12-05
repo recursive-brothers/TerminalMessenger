@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# what needs to happen?
+# the pattern is:
+# 1. somebody pushes code from a branch
+# 2. we get that branch name and execute the below code with that branch name on the server
+# 3. I think there needs to be one script that kicks it off and the other that does the server work
+
+
 BRANCH=$(git symbolic-ref HEAD 2>/dev/null)
 BRANCH=${BRANCH##refs/heads/}
 

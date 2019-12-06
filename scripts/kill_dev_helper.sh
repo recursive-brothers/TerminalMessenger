@@ -22,6 +22,6 @@ cd TerminalMessenger
 
 BITMAP=$(head -n 1 bitmap.txt)
 
-(( BITMAP &= (~1 << RESERVED_BIT) ))
+(( BITMAP &= ~(1 << RESERVED_BIT) ))
 
 echo $BITMAP > bitmap.txt

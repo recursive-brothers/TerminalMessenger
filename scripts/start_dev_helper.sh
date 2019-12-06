@@ -20,7 +20,6 @@ if [ ! -d "../${DIRNAME}" ]; then
             (( BITMAP |= ( 1 << i ) ))
             echo $BITMAP > bitmap.txt
             RESERVED_BIT=$i
-            echo $RESERVED_BIT > bit.txt
             echo "Looks like we end at ${i}!!!"
             break
         fi
@@ -28,6 +27,7 @@ if [ ! -d "../${DIRNAME}" ]; then
 
     mkdir "../${DIRNAME}"
     cd "../${DIRNAME}"
+    echo $RESERVED_BIT > bit.txt
     git clone https://github.com/recursive-brothers/TerminalMessenger.git
 else 
     RESERVED_BIT=$(head -n 1 bit.txt)

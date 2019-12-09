@@ -2,7 +2,7 @@
 
 ssh tm@terminalmessenger.com '
 cd TerminalMessenger/;
-killall screen;
+screen -X -S prod quit;
 git pull;
-screen -m -d ./server.py 3333
+screen -S prod -m -d ./server.py 3333
 '
